@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Користувачі - Адмін{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-container {
+        max-width: 1400px;
+        margin: 2rem auto;
+        animation: fadeIn 1s ease;
+    }
+
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary), #b01f24);
+        color: white;
+        padding: 2rem 3rem;
+        border-radius: 25px;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .admin-header h1 {
+        font-family: 'Noto Serif JP', serif;
+        font-size: 2.5rem;
+    }
+
+    .back-link {
+        color: white;
+        text-decoration: none;
+        padding: 0.8rem 1.5rem;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50px;
+        transition: all 0.3s ease;
+    }
+
+    .back-link:hover {
+        background: white;
+        color: var(--primary);
+    }
+
+    .users-table {
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow-x: auto;
+    }
+
+    .users-table h2 {
+        font-family: 'Noto Serif JP', serif;
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background: linear-gradient(135deg, #f9f9f9, #f0f0f0);
+    }
+
+    th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: var(--primary);
+        border-bottom: 2px solid var(--primary);
+    }
+
+    td {
+        padding: 1rem;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    tr {
+        transition: all 0.3s ease;
+    }
+
+    tbody tr:hover {
+        background: #f9f9f9;
+        transform: scale(1.01);
+    }
+
+    .user-avatar {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-admin {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-user {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-active {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .badge-inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .toggle-btn {
+        padding: 0.5rem 1rem;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .toggle-btn:hover {
+        background: #b01f24;
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .admin-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        table {
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            padding: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>👥 Управління Користувачами</h1>
+        <a href="{{ url_for('admin_dashboard') }}" class="back-link">← Назад</a>
+    </div>
+
+    <div class="users-table">
+        <h2>📋 Список користувачів</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Аватар</th>
+                    <th>Email</th>
+                    <th>Ім'я</th>
+                    <th>Телефон</th>
+                    <th>Роль</th>
+                    <th>Статус</th>
+                    <th>Дата реєстрації</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>
+                        <div class="user-avatar">
+                            {{ user.email[0].upper() }}
+                        </div>
+                    </td>
+                    <td><strong>{{ user.email }}</strong></td>
+                    <td>{{ user.username or '-' }}</td>
+                    <td>{{ user.phone or '-' }}</td>
+                    <td>
+                        {% if user.is_admin %}
+                            <span class="badge badge-admin">👑 Адмін</span>
+                        {% else %}
+                            <span class="badge badge-user">👤 Користувач</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user.is_active %}
+                            <span class="badge badge-active">✓ Активний</span>
+                        {% else %}
+                            <span class="badge badge-inactive">✗ Неактивний</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user.created_at.strftime('%d.%m.%Y') }}</td>
+                    <td>
+                        <a href="{{ url_for('admin_toggle_user_admin', user_id=user.id) }}" class="toggle-btn">
+                            {% if user.is_admin %}Зняти адміна{% else %}Зробити адміном{% endif %}
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

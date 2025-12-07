@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+
+{% block title %}Кошик - 桜レストラン{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cart-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        animation: fadeIn 1s ease;
+    }
+
+    .cart-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .cart-header h1 {
+        font-family: 'Noto Serif JP', serif;
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .cart-grid {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 2rem;
+    }
+
+    .cart-items {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .cart-item {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        display: flex;
+        gap: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        animation: slideInLeft 0.5s ease;
+        transition: all 0.3s ease;
+    }
+
+    .cart-item:hover {
+        transform: translateX(10px);
+        box-shadow: 0 8px 30px rgba(212, 40, 45, 0.15);
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .cart-item-image {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 15px;
+    }
+
+    .cart-item-details {
+        flex: 1;
+    }
+
+    .cart-item-name {
+        font-family: 'Noto Serif JP', serif;
+        font-size: 1.3rem;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .cart-item-price {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 1rem;
+    }
+
+    .cart-item-controls {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #f5f5f5;
+        padding: 0.5rem;
+        border-radius: 50px;
+    }
+
+    .quantity-btn {
+        width: 35px;
+        height: 35px;
+        border: none;
+        background: var(--primary);
+        color: white;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+    }
+
+    .quantity-btn:hover {
+        background: #b01f24;
+        transform: scale(1.1);
+    }
+
+    .quantity-input {
+        width: 50px;
+        text-align: center;
+        border: none;
+        background: transparent;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .remove-btn {
+        padding: 0.5rem 1rem;
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .remove-btn:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+    }
+
+    .cart-summary {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 100px;
+        animation: slideInRight 0.5s ease;
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .summary-title {
+        font-family: 'Noto Serif JP', serif;
+        font-size: 1.8rem;
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .summary-total {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .order-form {
+        margin-top: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--text);
+    }
+
+    .form-input, .form-select {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .form-input:focus, .form-select:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .checkout-btn {
+        width: 100%;
+        padding: 1rem;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(212, 40, 45, 0.3);
+    }
+
+    .checkout-btn:hover {
+        background: #b01f24;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(212, 40, 45, 0.4);
+    }
+
+    .empty-cart {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .empty-cart-icon {
+        font-size: 5rem;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 968px) {
+        .cart-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .cart-summary {
+            position: static;
+        }
+
+        .cart-item {
+            flex-direction: column;
+        }
+
+        .cart-item-image {
+            width: 100%;
+            height: 200px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cart-container">
+    <div class="cart-header">
+        <h1>🛒 Ваш Кошик</h1>
+    </div>
+
+    {% if items %}
+    <div class="cart-grid">
+        <div class="cart-items">
+            {% for item in items %}
+            <div class="cart-item">
+                <img src="{{ item.product.image_url or 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=400' }}" 
+                     alt="{{ item.product.name }}" 
+                     class="cart-item-image">
+                
+                <div class="cart-item-details">
+                    <h3 class="cart-item-name">{{ item.product.name }}</h3>
+                    <p class="cart-item-price">{{ item.product.price }} ₴</p>
+                    
+                    <div class="cart-item-controls">
+                        <form action="{{ url_for('update_cart', item_id=item.id) }}" method="POST">
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity({{ item.id }}, -1)">-</button>
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="quantity-input" id="qty-{{ item.id }}">
+                                <button type="button" class="quantity-btn" onclick="changeQuantity({{ item.id }}, 1)">+</button>
+                            </div>
+                        </form>
+                        
+                        <form action="{{ url_for('remove_from_cart', item_id=item.id) }}" method="POST">
+                            <button type="submit" class="remove-btn">🗑️ Видалити</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="cart-summary">
+            <h2 class="summary-title">Оформлення</h2>
+            
+            <div class="summary-row">
+                <span>Всього товарів:</span>
+                <span>{{ items|length }}</span>
+            </div>
+            
+            <div class="summary-row">
+                <span class="summary-total">До сплати:</span>
+                <span class="summary-total">
+                    {% set total = namespace(value=0) %}
+                    {% for item in items %}
+                        {% set total.value = total.value + (item.product.price * item.quantity) %}
+                    {% endfor %}
+                    {{ "%.2f"|format(total.value) }} ₴
+                </span>
+            </div>
+
+            <form action="{{ url_for('create_order') }}" method="POST" class="order-form">
+                <div class="form-group">
+                    <label class="form-label">Тип замовлення</label>
+                    <select name="order_type" class="form-select" required>
+                        <option value="delivery">🚚 Доставка</option>
+                        <option value="takeaway">🏃 Самовивіз</option>
+                        <option value="dine_in">🍽️ В ресторані</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Телефон</label>
+                    <input type="tel" name="phone" class="form-input" placeholder="+380 XX XXX XX XX" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Адреса доставки</label>
+                    <input type="text" name="address" class="form-input" placeholder="вул. Приклад, 123">
+                </div>
+
+                <button type="submit" class="checkout-btn">
+                    Оформити замовлення
+                </button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-cart">
+        <div class="empty-cart-icon">🍜</div>
+        <h2>Ваш кошик порожній</h2>
+        <p>Додайте смачні страви з меню!</p>
+        <a href="{{ url_for('menu') }}" class="btn-primary" style="margin-top: 2rem; display: inline-block; padding: 1rem 2rem;">
+            До меню
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function changeQuantity(itemId, delta) {
+    const input = document.getElementById('qty-' + itemId);
+    let newValue = parseInt(input.value) + delta;
+    if (newValue < 1) newValue = 1;
+    input.value = newValue;
+    
+    // Submit form
+    input.closest('form').submit();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,677 @@
+{% extends "base.html" %}
+
+{% block title %}Товари - Адмін{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-container {
+        max-width: 1400px;
+        margin: 2rem auto;
+        animation: fadeIn 1s ease;
+    }
+
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary), #b01f24);
+        color: white;
+        padding: 2rem 3rem;
+        border-radius: 25px;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .admin-header h1 {
+        font-family: 'Noto Serif JP', serif;
+        font-size: 2.5rem;
+    }
+
+    .back-link {
+        color: white;
+        text-decoration: none;
+        padding: 0.8rem 1.5rem;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50px;
+        transition: all 0.3s ease;
+    }
+
+    .back-link:hover {
+        background: white;
+        color: var(--primary);
+    }
+
+    .add-product-section {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 3rem;
+        animation: slideDown 0.8s ease;
+    }
+
+    .add-product-section h2 {
+        font-family: 'Noto Serif JP', serif;
+        color: var(--primary);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .product-form {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 2rem;
+    }
+
+    .form-left {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .form-right {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        align-content: start;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+        padding: 0.8rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-family: 'Noto Sans JP', sans-serif;
+        transition: all 0.3s ease;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(212, 40, 45, 0.1);
+    }
+
+    .form-textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    /* Image Upload Section */
+    .image-upload-container {
+        position: relative;
+    }
+
+    .image-upload-area {
+        width: 100%;
+        height: 350px;
+        border: 3px dashed #e0e0e0;
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #f9f9f9, #f0f0f0);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .image-upload-area:hover {
+        border-color: var(--primary);
+        background: linear-gradient(135deg, #fff5f5, #ffe0e0);
+        transform: scale(1.02);
+    }
+
+    .image-upload-area.dragover {
+        border-color: var(--primary);
+        background: linear-gradient(135deg, #fff5f5, #ffe0e0);
+        transform: scale(1.05);
+    }
+
+    .upload-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        animation: bounce 2s infinite;
+    }
+
+    .upload-text {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+    }
+
+    .upload-hint {
+        font-size: 0.9rem;
+        color: #999;
+    }
+
+    #imageInput {
+        display: none;
+    }
+
+    .image-preview {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+
+    .image-preview.active {
+        display: block;
+    }
+
+    .preview-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 17px;
+    }
+
+    .remove-image-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(212, 40, 45, 0.4);
+        z-index: 10;
+    }
+
+    .remove-image-btn:hover {
+        background: #b01f24;
+        transform: rotate(90deg) scale(1.1);
+    }
+
+    .image-info {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 0.8rem;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        backdrop-filter: blur(10px);
+    }
+
+    /* Alternative: URL Input */
+    .url-input-section {
+        margin-top: 1rem;
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        margin: 1rem 0;
+        color: #999;
+        font-size: 0.9rem;
+    }
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #e0e0e0;
+    }
+
+    .divider span {
+        padding: 0 1rem;
+    }
+
+    .submit-btn {
+        grid-column: 1 / -1;
+        padding: 1.2rem 2.5rem;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(212, 40, 45, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .submit-btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%);
+        transition: width 0.5s, height 0.5s;
+    }
+
+    .submit-btn:hover::before {
+        width: 400px;
+        height: 400px;
+    }
+
+    .submit-btn:hover {
+        background: #b01f24;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(212, 40, 45, 0.4);
+    }
+
+    /* Products Table */
+    .products-table {
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow-x: auto;
+    }
+
+    .products-table h2 {
+        font-family: 'Noto Serif JP', serif;
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background: linear-gradient(135deg, #f9f9f9, #f0f0f0);
+    }
+
+    th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: var(--primary);
+        border-bottom: 2px solid var(--primary);
+    }
+
+    td {
+        padding: 1rem;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    tr {
+        transition: all 0.3s ease;
+    }
+
+    tbody tr:hover {
+        background: #f9f9f9;
+        transform: scale(1.01);
+    }
+
+    .product-image-thumb {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .product-image-thumb:hover {
+        transform: scale(2.5);
+        z-index: 100;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .toggle-btn {
+        padding: 0.6rem 1.2rem;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .toggle-btn:hover {
+        background: #b01f24;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(212, 40, 45, 0.3);
+    }
+
+    .badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-success {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .badge-danger {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    @media (max-width: 1024px) {
+        .product-form {
+            grid-template-columns: 1fr;
+        }
+
+        .form-right {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .admin-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .add-product-section {
+            padding: 1.5rem;
+        }
+
+        .image-upload-area {
+            height: 250px;
+        }
+
+        table {
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            padding: 0.5rem;
+        }
+
+        .product-image-thumb {
+            width: 60px;
+            height: 60px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>🍱 Управління Товарами</h1>
+        <a href="{{ url_for('admin_dashboard') }}" class="back-link">← Назад</a>
+    </div>
+
+    <div class="add-product-section">
+        <h2>➕ Додати новий товар</h2>
+        <form action="{{ url_for('admin_add_product') }}" method="POST" enctype="multipart/form-data" class="product-form" id="productForm">
+            <!-- Left Column - Image Upload -->
+            <div class="form-left">
+                <div class="form-group">
+                    <label class="form-label">📸 Фото товару</label>
+                    <div class="image-upload-container">
+                        <div class="image-upload-area" id="uploadArea" onclick="document.getElementById('imageInput').click()">
+                            <div class="upload-icon">🖼️</div>
+                            <div class="upload-text">Натисніть або перетягніть фото</div>
+                            <div class="upload-hint">JPG, PNG до 5MB</div>
+                        </div>
+                        <div class="image-preview" id="imagePreview">
+                            <img src="" alt="Preview" class="preview-image" id="previewImg">
+                            <button type="button" class="remove-image-btn" onclick="removeImage(event)">×</button>
+                            <div class="image-info" id="imageInfo"></div>
+                        </div>
+                        <input type="file" id="imageInput" name="image" accept="image/jpeg,image/png,image/jpg" onchange="handleImageSelect(event)">
+                    </div>
+                </div>
+
+                <div class="url-input-section">
+                    <div class="divider">
+                        <span>АБО</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">🔗 URL зображення</label>
+                        <input type="url" name="image_url" class="form-input" placeholder="https://example.com/image.jpg" id="imageUrlInput" onchange="handleUrlInput(event)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Product Details -->
+            <div class="form-right">
+                <div class="form-group">
+                    <label class="form-label">📝 Назва товару *</label>
+                    <input type="text" name="name" class="form-input" required placeholder="Наприклад: Філадельфія рол">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">💰 Ціна (₴) *</label>
+                    <input type="number" name="price" class="form-input" step="0.01" min="0.01" required placeholder="250.00">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">🏷️ Категорія *</label>
+                    <select name="category_id" class="form-select" required>
+                        <option value="">Оберіть категорію</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">⚖️ Вага (г)</label>
+                    <input type="number" name="weight" class="form-input" min="0" placeholder="350">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">🔥 Калорії</label>
+                    <input type="number" name="calories" class="form-input" min="0" placeholder="450">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">⏱️ Час приготування (хв)</label>
+                    <input type="number" name="cooking_time" class="form-input" min="0" placeholder="20">
+                </div>
+
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label class="form-label">📄 Опис</label>
+                    <textarea name="description" class="form-textarea" placeholder="Детальний опис страви..."></textarea>
+                </div>
+
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label class="form-label">🥘 Інгредієнти</label>
+                    <textarea name="ingredients" class="form-textarea" placeholder="Наприклад: рис, лосось, авокадо, сир..."></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">✨ Додати товар</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="products-table">
+        <h2>📋 Список товарів</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Фото</th>
+                    <th>Назва</th>
+                    <th>Категорія</th>
+                    <th>Ціна</th>
+                    <th>Вага</th>
+                    <th>Статус</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.id }}</td>
+                    <td>
+                        <img src="{{ product.image_url or 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=100' }}" 
+                             alt="{{ product.name }}" 
+                             class="product-image-thumb">
+                    </td>
+                    <td><strong>{{ product.name }}</strong></td>
+                    <td>{{ product.category.name if product.category else '-' }}</td>
+                    <td><strong>{{ product.price }} ₴</strong></td>
+                    <td>{{ product.weight }}г</td>
+                    <td>
+                        {% if not product.is_deleted %}
+                            <span class="badge badge-success">✓ Активний</span>
+                        {% else %}
+                            <span class="badge badge-danger">✗ Видалено</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('admin_toggle_product', product_id=product.id) }}" class="toggle-btn">
+                            {% if not product.is_deleted %}Видалити{% else %}Відновити{% endif %}
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Handle file selection
+    function handleImageSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.match('image/(jpeg|png|jpg)')) {
+            alert('Будь ласка, оберіть файл JPG або PNG');
+            return;
+        }
+
+        // Validate file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Розмір файлу не повинен перевищувати 5MB');
+            return;
+        }
+
+        // Clear URL input if file is selected
+        document.getElementById('imageUrlInput').value = '';
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            showPreview(e.target.result, file.name, file.size);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Handle URL input
+    function handleUrlInput(event) {
+        const url = event.target.value;
+        if (url) {
+            // Clear file input if URL is provided
+            document.getElementById('imageInput').value = '';
+            showPreview(url, 'URL зображення', 0);
+        } else {
+            hidePreview();
+        }
+    }
+
+    // Show image preview
+    function showPreview(src, name, size) {
+        const uploadArea = document.getElementById('uploadArea');
+        const preview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        const imageInfo = document.getElementById('imageInfo');
+
+        previewImg.src = src;
+        uploadArea.style.display = 'none';
+        preview.classList.add('active');
+
+        let infoText = `📁 ${name}`;
+        if (size > 0) {
+            const sizeMB = (size / (1024 * 1024)).toFixed(2);
+            infoText += ` • ${sizeMB} MB`;
+        }
+        imageInfo.textContent = infoText;
+    }
+
+    // Hide image preview
+    function hidePreview() {
+        const uploadArea = document.getElementById('uploadArea');
+        const preview = document.getElementById('imagePreview');
+        
+        uploadArea.style.display = 'flex';
+        preview.classList.remove('active');
+    }
+
+    // Remove image
+    function removeImage(event) {
+        event.stopPropagation();
+        document.getElementById('imageInput').value = '';
+        document.getElementById('imageUrlInput').value = '';
+        hidePreview();
+    }
+
+    // Drag and drop functionality
+    const uploadArea = document.getElementById('uploadArea');
+
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            document.getElementById('imageInput').files = files;
+            handleImageSelect({ target: { files: files } });
+        }
+    });
+
+    // Prevent form submission if enter is pressed in inputs
+    document.getElementById('productForm').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+        }
+    });
+</script>
+{% endblock %}

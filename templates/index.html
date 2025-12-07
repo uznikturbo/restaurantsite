@@ -1,0 +1,344 @@
+{% extends "base.html" %}
+
+{% block title %}Головна - 桜レストラン{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero {
+        position: relative;
+        height: 600px;
+        background: linear-gradient(135deg, rgba(212, 40, 45, 0.9), rgba(26, 26, 26, 0.8)),
+                    url('https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=1600') center/cover;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 4rem;
+        animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .hero-content {
+        z-index: 2;
+        padding: 2rem;
+        animation: slideUp 1s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .hero h1 {
+        font-family: 'Noto Serif JP', serif;
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+        animation: glow 2s ease-in-out infinite;
+    }
+
+    @keyframes glow {
+        0%, 100% { text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5); }
+        50% { text-shadow: 2px 2px 20px rgba(244, 196, 48, 0.8); }
+    }
+
+    .hero p {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        opacity: 0.95;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .hero-btn {
+        padding: 1rem 2.5rem;
+        font-size: 1.1rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-block;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%);
+        transition: width 0.5s, height 0.5s;
+    }
+
+    .hero-btn:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+
+    .btn-light {
+        background: white;
+        color: var(--primary);
+        box-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-light:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 30px rgba(255, 255, 255, 0.5);
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+    }
+
+    .btn-outline:hover {
+        background: white;
+        color: var(--primary);
+        transform: translateY(-3px);
+    }
+
+    /* Features Section */
+    .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin: 4rem 0;
+    }
+
+    .feature-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 20px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.6s ease;
+        animation-fill-mode: both;
+    }
+
+    .feature-card:nth-child(1) { animation-delay: 0.1s; }
+    .feature-card:nth-child(2) { animation-delay: 0.2s; }
+    .feature-card:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px) rotate(2deg);
+        box-shadow: 0 15px 40px rgba(212, 40, 45, 0.2);
+    }
+
+    .feature-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        display: inline-block;
+        animation: bounce 2s infinite;
+    }
+
+    .feature-card h3 {
+        font-family: 'Noto Serif JP', serif;
+        color: var(--primary);
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .feature-card p {
+        color: #666;
+        line-height: 1.6;
+    }
+
+    /* Popular Dishes */
+    .section-title {
+        text-align: center;
+        font-family: 'Noto Serif JP', serif;
+        font-size: 3rem;
+        color: var(--primary);
+        margin: 4rem 0 2rem;
+        position: relative;
+        animation: fadeIn 1s ease;
+    }
+
+    .section-title::after {
+        content: '';
+        display: block;
+        width: 100px;
+        height: 4px;
+        background: var(--accent);
+        margin: 1rem auto;
+        border-radius: 2px;
+    }
+
+    .dishes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .dish-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.6s ease;
+        animation-fill-mode: both;
+    }
+
+    .dish-card:nth-child(1) { animation-delay: 0.1s; }
+    .dish-card:nth-child(2) { animation-delay: 0.2s; }
+    .dish-card:nth-child(3) { animation-delay: 0.3s; }
+
+    .dish-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(212, 40, 45, 0.2);
+    }
+
+    .dish-image {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .dish-card:hover .dish-image {
+        transform: scale(1.1);
+    }
+
+    .dish-content {
+        padding: 1.5rem;
+    }
+
+    .dish-content h3 {
+        font-family: 'Noto Serif JP', serif;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+    }
+
+    .dish-content p {
+        color: #666;
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+
+    .dish-price {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--accent);
+    }
+
+    /* CTA Section */
+    .cta-section {
+        background: linear-gradient(135deg, var(--primary), #b01f24);
+        color: white;
+        padding: 4rem 2rem;
+        border-radius: 20px;
+        text-align: center;
+        margin: 4rem 0;
+        animation: fadeIn 1s ease;
+    }
+
+    .cta-section h2 {
+        font-family: 'Noto Serif JP', serif;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .cta-section p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.95;
+    }
+
+    @media (max-width: 768px) {
+        .hero h1 {
+            font-size: 2.5rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+        }
+
+        .features {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-content">
+            <h1>桜レストラン</h1>
+            <p>Відкрийте для себе справжню японську кухню</p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('menu') }}" class="hero-btn btn-light">Переглянути меню</a>
+                <a href="#features" class="hero-btn btn-outline">Дізнатись більше</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features" id="features">
+        <div class="feature-card">
+            <div class="feature-icon">🍣</div>
+            <h3>Свіжі інгредієнти</h3>
+            <p>Ми використовуємо тільки найсвіжіші продукти, доставлені щодня</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">👨‍🍳</div>
+            <h3>Досвідчені шеф-кухарі</h3>
+            <p>Наші майстри навчалися у Японії та володіють традиційними техніками</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🚚</div>
+            <h3>Швидка доставка</h3>
+            <p>Доставимо ваше замовлення гарячим протягом 30-40 хвилин</p>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="cta-section">
+        <h2>Готові замовити?</h2>
+        <p>Оформіть замовлення зараз і отримайте знижку 10% на перше замовлення!</p>
+        <a href="{{ url_for('menu') }}" class="hero-btn btn-light">Замовити зараз</a>
+    </div>
+{% endblock %}

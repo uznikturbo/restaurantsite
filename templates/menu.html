@@ -1,0 +1,512 @@
+{% extends "base.html" %}
+
+{% block title %}Меню - 桜レストラン{% endblock %}
+
+{% block extra_css %}
+<style>
+    .menu-header {
+        text-align: center;
+        padding: 3rem 0;
+        animation: fadeIn 1s ease;
+    }
+
+    .menu-header h1 {
+        font-family: 'Noto Serif JP', serif;
+        font-size: 3.5rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+        position: relative;
+        display: inline-block;
+    }
+
+    .menu-header h1::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        height: 4px;
+        background: var(--accent);
+        border-radius: 2px;
+    }
+
+    .menu-header p {
+        font-size: 1.2rem;
+        color: #666;
+        margin-top: 1.5rem;
+    }
+
+    /* Filter Buttons */
+    .filter-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin: 2rem 0;
+        animation: slideUp 0.8s ease;
+    }
+
+    .filter-btn {
+        padding: 0.8rem 2rem;
+        background: white;
+        color: var(--text);
+        border: 2px solid var(--primary);
+        border-radius: 50px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .filter-btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: var(--primary);
+        transform: translate(-50%, -50%);
+        transition: width 0.5s, height 0.5s;
+        z-index: -1;
+    }
+
+    .filter-btn:hover::before,
+    .filter-btn.active::before {
+        width: 300px;
+        height: 300px;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(212, 40, 45, 0.3);
+    }
+
+    /* Products Grid */
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.6s ease;
+        animation-fill-mode: both;
+        position: relative;
+    }
+
+    .product-card:nth-child(odd) { animation-delay: 0.1s; }
+    .product-card:nth-child(even) { animation-delay: 0.2s; }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .product-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(212, 40, 45, 0.2);
+    }
+
+    .product-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: var(--accent);
+        color: var(--secondary);
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        z-index: 10;
+        box-shadow: 0 4px 15px rgba(244, 196, 48, 0.4);
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+    }
+
+    .product-image-container {
+        height: 280px;
+        overflow: hidden;
+        position: relative;
+        background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .product-card:hover .product-image {
+        transform: scale(1.15) rotate(3deg);
+    }
+
+    .product-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+        padding: 1rem;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+    }
+
+    .product-card:hover .product-overlay {
+        transform: translateY(0);
+    }
+
+    .product-info {
+        color: white;
+        font-size: 0.9rem;
+    }
+
+    .product-content {
+        padding: 1.5rem;
+    }
+
+    .product-content h3 {
+        font-family: 'Noto Serif JP', serif;
+        color: var(--primary);
+        margin-bottom: 0.8rem;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .product-description {
+        color: #666;
+        margin-bottom: 1rem;
+        line-height: 1.6;
+        font-size: 0.95rem;
+        min-height: 60px;
+    }
+
+    .product-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 0.8rem;
+        background: #f9f9f9;
+        border-radius: 10px;
+    }
+
+    .product-meta-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .meta-label {
+        font-size: 0.75rem;
+        color: #999;
+        text-transform: uppercase;
+    }
+
+    .meta-value {
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .product-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .product-price {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--accent);
+        display: flex;
+        align-items: baseline;
+        gap: 0.3rem;
+    }
+
+    .product-price small {
+        font-size: 1rem;
+        color: #999;
+    }
+
+    .add-to-cart-btn {
+        flex: 1;
+        padding: 0.8rem 1.5rem;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 15px rgba(212, 40, 45, 0.3);
+    }
+
+    .add-to-cart-btn:hover {
+        background: #b01f24;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(212, 40, 45, 0.4);
+    }
+
+    .add-to-cart-btn:active {
+        transform: translateY(0);
+    }
+
+    .view-details-link {
+        padding: 0.8rem 1.5rem;
+        background: transparent;
+        color: var(--primary);
+        border: 2px solid var(--primary);
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .view-details-link:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        animation: fadeIn 1s ease;
+    }
+
+    .empty-state-icon {
+        font-size: 5rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h2 {
+        font-family: 'Noto Serif JP', serif;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: #666;
+    }
+
+    /* Loading Animation */
+    .loading-container {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .loader {
+        width: 60px;
+        height: 60px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid var(--primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+        .menu-header h1 {
+            font-size: 2.5rem;
+        }
+
+        .products-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .filter-buttons {
+            gap: 0.5rem;
+        }
+
+        .filter-btn {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="menu-header">
+        <h1>🍱 Наше Меню</h1>
+        <p>Оберіть свої улюблені страви японської кухні</p>
+    </div>
+
+    <!-- Filter Buttons (Optional - for future category filtering) -->
+    <div class="filter-buttons">
+        <button class="filter-btn active" onclick="filterProducts('all')">Всі страви</button>
+        <button class="filter-btn" onclick="filterProducts('Суші')">Суші</button>
+        <button class="filter-btn" onclick="filterProducts('Роли')">Роли</button>
+        <button class="filter-btn" onclick="filterProducts('Рамен')">Рамен</button>
+        <button class="filter-btn" onclick="filterProducts('Закуски')">Закуски</button>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="products-grid">
+        {% if products %}
+            {% for product in products %}
+            <div class="product-card" data-category="{{ product.category.name if product.category else 'other' }}">
+                {% if product.is_available %}
+                    <div class="product-badge">Доступно</div>
+                {% endif %}
+                
+                <div class="product-image-container">
+                    {% if product.image_url %}
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-image">
+                    {% else %}
+                        <img src="https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=600" alt="{{ product.name }}" class="product-image">
+                    {% endif %}
+                    
+                    <div class="product-overlay">
+                        <div class="product-info">
+                            {% if product.ingredients %}
+                                <strong>Інгредієнти:</strong> {{ product.ingredients[:100] }}...
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-content">
+                    <h3>{{ product.name }}</h3>
+                    
+                    <p class="product-description">
+                        {{ product.description or 'Смачна страва японської кухні' }}
+                    </p>
+
+                    {% if product.weight or product.calories or product.cooking_time %}
+                    <div class="product-meta">
+                        {% if product.weight %}
+                        <div class="product-meta-item">
+                            <span class="meta-label">Вага</span>
+                            <span class="meta-value">{{ product.weight }}г</span>
+                        </div>
+                        {% endif %}
+                        {% if product.calories %}
+                        <div class="product-meta-item">
+                            <span class="meta-label">Калорії</span>
+                            <span class="meta-value">{{ product.calories }}</span>
+                        </div>
+                        {% endif %}
+                        {% if product.cooking_time %}
+                        <div class="product-meta-item">
+                            <span class="meta-label">Час</span>
+                            <span class="meta-value">{{ product.cooking_time }}хв</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <div class="product-footer">
+                        <div class="product-price">
+                            {{ product.price }}
+                            <small>₴</small>
+                        </div>
+                        
+                        {% if current_user.is_authenticated %}
+                            <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST" style="flex: 1;">
+                                <button type="submit" class="add-to-cart-btn">
+                                    🛒 В кошик
+                                </button>
+                            </form>
+                        {% else %}
+                            <a href="{{ url_for('login') }}" class="add-to-cart-btn" style="text-decoration: none;">
+                                🔐 Увійти
+                            </a>
+                        {% endif %}
+                    </div>
+                    
+                    <div style="margin-top: 1rem;">
+                        <a href="{{ url_for('position', id=product.id) }}" class="view-details-link">
+                            Детальніше →
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">🍜</div>
+                <h2>Меню поки порожнє</h2>
+                <p>Наші шеф-кухарі готують щось особливе для вас!</p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function filterProducts(category) {
+        const products = document.querySelectorAll(".product-card");
+
+        products.forEach(product => {
+            if (category === "all") {
+                product.style.display = "block";
+            } else {
+                product.style.display =
+                    product.dataset.category === category ? "block" : "none";
+            }
+        });
+
+        document.querySelectorAll(".filter-btn").forEach(btn =>
+            btn.classList.remove("active")
+        );
+        event.target.classList.add("active");
+    }
+
+    // Add to cart animation
+    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            const icon = this.querySelector('span') || this;
+            icon.style.animation = 'bounce 0.5s ease';
+            setTimeout(() => {
+                icon.style.animation = '';
+            }, 500);
+        });
+    });
+</script>
+{% endblock %}

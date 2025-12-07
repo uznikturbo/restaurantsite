@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+
+{% block title %}Замовлення оформлено - 桜レストラン{% endblock %}
+
+{% block extra_css %}
+<style>
+    .success-container {
+        max-width: 800px;
+        margin: 4rem auto;
+        text-align: center;
+        animation: fadeIn 1s ease;
+    }
+
+    .success-card {
+        background: white;
+        padding: 4rem 3rem;
+        border-radius: 25px;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+        animation: zoomIn 0.8s ease;
+    }
+
+    @keyframes zoomIn {
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .success-icon {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #48bb78, #38a169);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        margin: 0 auto 2rem;
+        box-shadow: 0 10px 30px rgba(72, 187, 120, 0.3);
+        animation: checkmark 0.8s ease 0.3s both;
+    }
+
+    @keyframes checkmark {
+        0% {
+            transform: scale(0) rotate(0deg);
+        }
+        50% {
+            transform: scale(1.2) rotate(180deg);
+        }
+        100% {
+            transform: scale(1) rotate(360deg);
+        }
+    }
+
+    .success-title {
+        font-family: 'Noto Serif JP', serif;
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+        animation: slideUp 0.8s ease 0.5s both;
+    }
+
+    .success-message {
+        font-size: 1.2rem;
+        color: #666;
+        margin-bottom: 2rem;
+        line-height: 1.8;
+        animation: slideUp 0.8s ease 0.7s both;
+    }
+
+    .order-summary {
+        background: #f9f9f9;
+        padding: 2rem;
+        border-radius: 20px;
+        margin: 2rem 0;
+        text-align: left;
+        animation: slideUp 0.8s ease 0.9s both;
+    }
+
+    .summary-title {
+        font-family: 'Noto Serif JP', serif;
+        font-size: 1.5rem;
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .summary-row:last-child {
+        border-bottom: none;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 2px solid var(--primary);
+    }
+
+    .summary-label {
+        font-weight: 500;
+        color: var(--text);
+    }
+
+    .summary-value {
+        color: #666;
+        font-weight: 600;
+    }
+
+    .total-amount {
+        font-size: 1.8rem;
+        color: var(--accent);
+        font-weight: 700;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        animation: slideUp 0.8s ease 1.1s both;
+    }
+
+    .btn-primary-custom {
+        padding: 1rem 2.5rem;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(212, 40, 45, 0.3);
+        display: inline-block;
+    }
+
+    .btn-primary-custom:hover {
+        background: #b01f24;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(212, 40, 45, 0.4);
+    }
+
+    .btn-secondary-custom {
+        padding: 1rem 2.5rem;
+        background: transparent;
+        color: var(--primary);
+        border: 2px solid var(--primary);
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .btn-secondary-custom:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    .confetti {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        background: var(--accent);
+        position: absolute;
+        animation: confetti-fall 3s linear;
+    }
+
+    @keyframes confetti-fall {
+        to {
+            transform: translateY(100vh) rotate(360deg);
+            opacity: 0;
+        }
+    }
+
+    .timeline {
+        margin: 2rem 0;
+        padding: 2rem;
+        background: white;
+        border-radius: 20px;
+    }
+
+    .timeline-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.5;
+    }
+
+    .timeline-item.active {
+        opacity: 1;
+    }
+
+    .timeline-icon {
+        width: 50px;
+        height: 50px;
+        background: #e0e0e0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .timeline-item.active .timeline-icon {
+        background: var(--primary);
+        color: white;
+        animation: pulse 2s infinite;
+    }
+
+    .timeline-content {
+        flex: 1;
+    }
+
+    .timeline-title {
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .timeline-time {
+        font-size: 0.9rem;
+        color: #999;
+    }
+
+    @media (max-width: 768px) {
+        .success-card {
+            padding: 3rem 2rem;
+        }
+
+        .success-title {
+            font-size: 2rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn-primary-custom,
+        .btn-secondary-custom {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="success-container">
+    <div class="success-card">
+        <div class="success-icon">✓</div>
+        
+        <h1 class="success-title">Дякуємо за замовлення!</h1>
+        <p class="success-message">
+            Ваше замовлення №{{ order.id }} успішно оформлено та оплачено.<br>
+            Ми вже почали готувати ваші страви! 🍣
+        </p>
+
+        <div class="order-summary">
+            <h2 class="summary-title">📋 Деталі замовлення</h2>
+            
+            <div class="summary-row">
+                <span class="summary-label">Номер замовлення:</span>
+                <span class="summary-value">#{{ order.id }}</span>
+            </div>
+
+            <div class="summary-row">
+                <span class="summary-label">Дата оформлення:</span>
+                <span class="summary-value">{{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+            </div>
+
+            <div class="summary-row">
+                <span class="summary-label">Тип замовлення:</span>
+                <span class="summary-value">
+                    {% if order.order_type.value == 'delivery' %}
+                        🚚 Доставка
+                    {% elif order.order_type.value == 'takeaway' %}
+                        🏃 Самовивіз
+                    {% else %}
+                        🍽️ В ресторані
+                    {% endif %}
+                </span>
+            </div>
+
+            {% if order.delivery_address %}
+            <div class="summary-row">
+                <span class="summary-label">Адреса:</span>
+                <span class="summary-value">{{ order.delivery_address }}</span>
+            </div>
+            {% endif %}
+
+            {% if order.phone %}
+            <div class="summary-row">
+                <span class="summary-label">Телефон:</span>
+                <span class="summary-value">{{ order.phone }}</span>
+            </div>
+            {% endif %}
+
+            <div class="summary-row">
+                <span class="summary-label">Статус оплати:</span>
+                <span class="summary-value" style="color: #38a169;">✓ Оплачено</span>
+            </div>
+
+            <div class="summary-row">
+                <span class="summary-label total-amount">До сплати:</span>
+                <span class="total-amount">{{ order.total }} ₴</span>
+            </div>
+        </div>
+
+        <div class="timeline">
+            <div class="timeline-item active">
+                <div class="timeline-icon">✓</div>
+                <div class="timeline-content">
+                    <div class="timeline-title">Замовлення прийнято</div>
+                    <div class="timeline-time">Зараз</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-icon">👨‍🍳</div>
+                <div class="timeline-content">
+                    <div class="timeline-title">Готується</div>
+                    <div class="timeline-time">~15-20 хв</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-icon">📦</div>
+                <div class="timeline-content">
+                    <div class="timeline-title">Готово до видачі</div>
+                    <div class="timeline-time">~30-40 хв</div>
+                </div>
+            </div>
+
+            {% if order.order_type.value == 'delivery' %}
+            <div class="timeline-item">
+                <div class="timeline-icon">🚚</div>
+                <div class="timeline-content">
+                    <div class="timeline-title">В дорозі</div>
+                    <div class="timeline-time">~45-60 хв</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="action-buttons">
+            <a href="{{ url_for('profile') }}" class="btn-primary-custom">
+                Переглянути замовлення
+            </a>
+            <a href="{{ url_for('menu') }}" class="btn-secondary-custom">
+                Назад до меню
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Create confetti effect
+    function createConfetti() {
+        const colors = ['#d4282d', '#f4c430', '#38a169', '#3b82f6'];
+        for (let i = 0; i < 50; i++) {
+            setTimeout(() => {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                document.body.appendChild(confetti);
+
+                setTimeout(() => confetti.remove(), 3000);
+            }, i * 30);
+        }
+    }
+
+    // Trigger confetti on page load
+    window.addEventListener('load', createConfetti);
+</script>
+{% endblock %}

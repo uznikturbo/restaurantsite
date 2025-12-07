@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block title %}{{ position.name }} - 桜レストラン{% endblock %}
+
+{% block extra_css %}
+<style>
+    .product-detail {
+        max-width: 1200px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 25px;
+        overflow: hidden;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 1s ease;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        padding: 3rem;
+    }
+
+    .product-image-section {
+        animation: slideInLeft 0.8s ease;
+    }
+
+    .product-main-image {
+        width: 100%;
+        height: 500px;
+        object-fit: cover;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .product-info-section {
+        animation: slideInRight 0.8s ease;
+    }
+
+    .product-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: var(--accent);
+        color: var(--secondary);
+        border-radius: 50px;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .product-title {
+        font-family: 'Noto Serif JP', serif;
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+
+    .product-price {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 2rem;
+    }
+
+    .product-description {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #666;
+        margin-bottom: 2rem;
+    }
+
+    .product-specs {
+        background: #f9f9f9;
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .spec-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .spec-row:last-child {
+        border-bottom: none;
+    }
+
+    .spec-label {
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .spec-value {
+        color: #666;
+    }
+
+    .product-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .add-cart-btn {
+        flex: 1;
+        padding: 1.2rem 2rem;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(212, 40, 45, 0.3);
+    }
+
+    .add-cart-btn:hover {
+        background: #b01f24;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(212, 40, 45, 0.4);
+    }
+
+    .back-btn {
+        padding: 1.2rem 2rem;
+        background: transparent;
+        color: var(--primary);
+        border: 2px solid var(--primary);
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .back-btn:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    @media (max-width: 968px) {
+        .product-grid {
+            grid-template-columns: 1fr;
+            padding: 2rem;
+        }
+
+        .product-main-image {
+            height: 300px;
+        }
+
+        .product-title {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="product-detail">
+    <div class="product-grid">
+        <div class="product-image-section">
+            <img src="{{ position.image_url or 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=800' }}" 
+                 alt="{{ position.name }}" 
+                 class="product-main-image">
+        </div>
+
+        <div class="product-info-section">
+            {% if position.is_available %}
+            <span class="product-badge">✓ Доступно</span>
+            {% else %}
+            <span class="product-badge" style="background: #dc3545; color: white;">✗ Недоступно</span>
+            {% endif %}
+
+            <h1 class="product-title">{{ position.name }}</h1>
+            <div class="product-price">{{ position.price }} ₴</div>
+
+            <p class="product-description">
+                {{ position.description or 'Смачна японська страва, приготована нашими досвідченими шеф-кухарями з найсвіжіших інгредієнтів.' }}
+            </p>
+
+            <div class="product-specs">
+                <h3 style="margin-bottom: 1rem; color: var(--primary);">📋 Характеристики</h3>
+                
+                {% if position.weight %}
+                <div class="spec-row">
+                    <span class="spec-label">Вага:</span>
+                    <span class="spec-value">{{ position.weight }} г</span>
+                </div>
+                {% endif %}
+
+                {% if position.calories %}
+                <div class="spec-row">
+                    <span class="spec-label">Калорії:</span>
+                    <span class="spec-value">{{ position.calories }} ккал</span>
+                </div>
+                {% endif %}
+
+                {% if position.cooking_time %}
+                <div class="spec-row">
+                    <span class="spec-label">Час приготування:</span>
+                    <span class="spec-value">{{ position.cooking_time }} хв</span>
+                </div>
+                {% endif %}
+
+                {% if position.category %}
+                <div class="spec-row">
+                    <span class="spec-label">Категорія:</span>
+                    <span class="spec-value">{{ position.category.name }}</span>
+                </div>
+                {% endif %}
+
+                {% if position.ingredients %}
+                <div class="spec-row">
+                    <span class="spec-label">Інгредієнти:</span>
+                    <span class="spec-value">{{ position.ingredients }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="product-actions">
+                <a href="{{ url_for('menu') }}" class="back-btn">← Назад</a>
+                
+                {% if current_user.is_authenticated and position.is_available %}
+                <form action="{{ url_for('add_to_cart', product_id=position.id) }}" method="POST" style="flex: 1;">
+                    <button type="submit" class="add-cart-btn">🛒 Додати в кошик</button>
+                </form>
+                {% elif not current_user.is_authenticated %}
+                <a href="{{ url_for('login') }}" class="add-cart-btn" style="text-align: center; text-decoration: none;">
+                    🔐 Увійти щоб замовити
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
