@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+
+{% block title %}Історія та Атмосфера - 桜レストラン{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ================== HERO SECTION ================== */
+    .about-hero {
+        position: relative;
+        height: 60vh;
+        min-height: 400px;
+        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)),
+                    url('https://images.unsplash.com/photo-1559339352-11d035aa65de?w=1600') center/cover fixed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        margin-bottom: 4rem;
+        border-radius: 0 0 30px 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .hero-content h1 {
+        font-family: 'Noto Serif JP', serif;
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .hero-content .subtitle {
+        font-size: 1.5rem;
+        color: #d4282d;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+
+    /* ================== CONTENT GRID ================== */
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    .story-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: center;
+        margin-bottom: 6rem;
+    }
+
+    .story-section.reverse {
+        direction: rtl; /* Для чергування тексту і картинки */
+    }
+
+    .story-section.reverse .text-block {
+        direction: ltr;
+    }
+
+    .image-block {
+        position: relative;
+    }
+
+    .image-block img {
+        width: 100%;
+        border-radius: 20px;
+        box-shadow: 20px 20px 0 #d4282d;
+        transition: transform 0.3s ease;
+    }
+
+    .image-block:hover img {
+        transform: translate(-5px, -5px);
+    }
+
+    .text-block h2 {
+        font-family: 'Noto Serif JP', serif;
+        font-size: 2.5rem;
+        color: #1a1a1a;
+        margin-bottom: 1.5rem;
+        position: relative;
+        display: inline-block;
+    }
+
+    .text-block h2::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: #d4282d;
+    }
+
+    .text-block p {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #4b5563;
+        margin-bottom: 1.5rem;
+    }
+
+    /* ================== VALUES CARDS ================== */
+    .values-section {
+        background: #f8f8f8;
+        padding: 5rem 2rem;
+        border-radius: 30px;
+        margin-bottom: 6rem;
+        text-align: center;
+    }
+
+    .values-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .value-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        transition: transform 0.3s;
+    }
+
+    .value-card:hover {
+        transform: translateY(-10px);
+    }
+
+    .value-icon {
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+        display: block;
+    }
+
+    .value-card h3 {
+        font-family: 'Noto Serif JP', serif;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: #1a1a1a;
+    }
+
+    /* ================== LOCATION BLOCK ================== */
+    .location-banner {
+        background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+        color: white;
+        padding: 4rem;
+        border-radius: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4rem;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .address-info h2 {
+        font-family: 'Noto Serif JP', serif;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: #d4282d;
+    }
+
+    .address-text {
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .map-frame {
+        width: 100%;
+        max-width: 500px;
+        height: 300px;
+        border-radius: 15px;
+        overflow: hidden;
+        border: 2px solid #4a4a4a;
+    }
+
+    /* ================== RESPONSIVE ================== */
+    @media (max-width: 900px) {
+        .story-section {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .story-section.reverse {
+            direction: ltr;
+        }
+
+        .text-block h2::after {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .image-block img {
+            box-shadow: 10px 10px 0 #d4282d;
+        }
+
+        .location-banner {
+            flex-direction: column;
+            gap: 2rem;
+            text-align: center;
+        }
+        
+        .address-text {
+            justify-content: center;
+            flex-direction: column;
+        }
+        
+        .hero-content h1 {
+            font-size: 2.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="about-hero">
+    <div class="hero-content">
+        <div class="subtitle">Since 2018</div>
+        <h1>Історія 桜</h1>
+        <p style="font-size: 1.2rem; max-width: 600px; margin: 0 auto; opacity: 0.9;">
+            Маленький куточок Кіото в самому серці Черкас
+        </p>
+    </div>
+</div>
+
+<div class="container">
+    
+    <div class="story-section">
+        <div class="text-block">
+            <h2>Народження Легенди</h2>
+            <p>
+                Історія нашого ресторану почалася не з бізнес-плану, а з подорожі. Наш шеф-кухар та засновник, <strong>Кендзі Ямамото</strong>, подорожував Європою у пошуках нових смаків. Коли він потрапив до Черкас, його вразила велич Дніпра, яка нагадала йому рідні краєвиди біля озера Біва в Японії.
+            </p>
+            <p>
+                Гуляючи тихими вулицями міста, він знайшов старий будинок на <strong>вулиці Чорновола, 23</strong>. Сонячне світло падало на фасад так само, як на чайний будиночок його дідуся в Осаці. Саме в той момент Кендзі зрозумів: тут буде "Сакура".
+            </p>
+        </div>
+        <div class="image-block">
+            <img src="https://montecristomagazine.com/wp-content/uploads/2017/11/tojos_montecristo_hi-res-4_01.jpg" alt="Japanese Chef cooking">
+        </div>
+    </div>
+
+    <div class="story-section reverse">
+        <div class="text-block">
+            <h2>Філософія Чорновола 23</h2>
+            <p>
+                Ми не просто готуємо суші. Ми створили місце, де час зупиняється. Вулиця Чорновола — це історичний центр, і ми хотіли зберегти цю атмосферу, додавши до неї японської витонченості.
+            </p>
+            <p>
+                Кожна деталь інтер'єру, від бамбукових перегородок до керамічного посуду, була привезена або створена вручну, щоб гармоніювати з духом цієї вулиці. Це місце для тих, хто хоче втекти від міського шуму, не полишаючи центру міста.
+            </p>
+        </div>
+        <div class="image-block">
+            <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800" alt="Restaurant Interior">
+        </div>
+    </div>
+
+    <div class="values-section">
+        <h2 style="font-family: 'Noto Serif JP'; font-size: 2.5rem; margin-bottom: 1rem; color: #1a1a1a;">Чому обирають нас</h2>
+        <p style="color: #666; max-width: 600px; margin: 0 auto;">Три стовпи, на яких тримається наш ресторан</p>
+        
+        <div class="values-grid">
+            <div class="value-card">
+                <span class="value-icon">🐟</span>
+                <h3>Свіжість</h3>
+                <p>Ми отримуємо свіжу рибу тричі на тиждень. Жодних компромісів із заморозкою там, де має бути свіжість.</p>
+            </div>
+            <div class="value-card">
+                <span class="value-icon">🍵</span>
+                <h3>Традиції</h3>
+                <p>Наші рецепти — це спадщина родини Ямамото, адаптована під найкращі українські фермерські продукти.</p>
+            </div>
+            <div class="value-card">
+                <span class="value-icon">❤️</span>
+                <h3>Гостинність</h3>
+                <p>Омотенаші — японська філософія гостинності. Ми дбаємо про вас так, наче ви — єдиний гість у залі.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="location-banner">
+        <div class="address-info">
+            <h2>Завітайте до нас</h2>
+            <p style="margin-bottom: 20px; opacity: 0.8;">Ми завжди раді новим друзям</p>
+            
+            <div class="address-text">
+                📍 <span>м. Черкаси,<br>вул. Чорновола 23</span>
+            </div>
+            <p style="margin-top: 15px; font-size: 1rem; color: #f4c430;">
+                (Вхід з боку скверу, через червоні ворота торії)
+            </p>
+        </div>
+
+        <div class="map-frame">
+            <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2595.605374463162!2d32.05976931590483!3d49.44443147934893!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40d14b866064977f%3A0xf8d985b31c7d4285!2z0YPQuy4g0JLRj9GH0LXRgdC70LDQstCwINCn0L7RgNC90L7QstC-0LvQsCwgMjMsINCn0LXRgNC60LDRgdGLLCDQp9C10YDQutCw0YHRgdC60LDRjyDQvtCx0LvQsNGB0YLRjCwgMTgwMDA!5e0!3m2!1suk!2sua!4v1620000000000!5m2!1suk!2sua" 
+                width="100%" 
+                height="100%" 
+                style="border:0;" 
+                allowfullscreen="" 
+                loading="lazy">
+            </iframe>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

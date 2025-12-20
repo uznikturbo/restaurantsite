@@ -1,0 +1,530 @@
+{% extends "base.html" %}
+
+{% block title %}Столики — Адмін{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+        animation: fadeIn 1s ease;
+    }
+
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary), #b01f24);
+        color: white;
+        padding: 2rem 3rem;
+        border-radius: 25px;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .admin-header h1 {
+        font-family: 'Noto Serif JP', serif;
+        font-size: 2.3rem;
+    }
+
+    .back-link {
+        color: white;
+        text-decoration: none;
+        padding: 0.8rem 1.5rem;
+        background: rgba(255,255,255,.2);
+        border-radius: 50px;
+        transition: .3s;
+    }
+
+    .back-link:hover {
+        background: white;
+        color: var(--primary);
+    }
+
+    /* ===== FORM ===== */
+    .add-table-section {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.1);
+        margin-bottom: 2rem;
+    }
+
+    .add-table-section h2 {
+        font-family: 'Noto Serif JP', serif;
+        color: var(--primary);
+        margin-bottom: 2rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1.8rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: .6rem;
+    }
+
+    .form-input {
+        padding: 1rem 1.2rem;
+        border-radius: 14px;
+        border: 2px solid #e5e7eb;
+        font-size: 1rem;
+        transition: .3s;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(212,40,45,.15);
+    }
+
+    /* ===== TABLE TYPE BUTTONS ===== */
+    .table-types {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.2rem;
+        margin-top: .5rem;
+    }
+
+    .type-btn {
+        padding: 1.5rem;
+        border-radius: 20px;
+        border: 2px solid #e5e7eb;
+        background: #fafafa;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: .35s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: .4rem;
+    }
+
+    .type-btn span {
+        font-size: 2rem;
+    }
+
+    .type-btn:hover {
+        transform: translateY(-4px);
+        border-color: var(--primary);
+        background: #fff5f5;
+    }
+
+    .type-btn.active {
+        border-color: var(--primary);
+        background: linear-gradient(135deg, #fff5f5, #ffe0e0);
+        box-shadow: 0 8px 20px rgba(212,40,45,.25);
+    }
+
+    /* ===== SUBMIT ===== */
+    .add-btn {
+        margin-top: 1rem;
+        padding: 1.2rem;
+        width: 100%;
+        border-radius: 50px;
+        background: var(--primary);
+        color: white;
+        font-size: 1.2rem;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: .3s;
+        box-shadow: 0 8px 20px rgba(212,40,45,.35);
+    }
+
+    .add-btn:hover {
+        background: #b01f24;
+        transform: translateY(-3px);
+    }
+
+    .save-btn {
+        padding: 1.2rem 3rem;
+        border-radius: 50px;
+        background: #10b981;
+        color: white;
+        font-size: 1.2rem;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: .3s;
+        box-shadow: 0 8px 20px rgba(16,185,129,.35);
+        margin-top: 1.5rem;
+    }
+
+    .save-btn:hover {
+        background: #059669;
+        transform: translateY(-3px);
+    }
+
+    .save-btn:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* ===== FLOOR ===== */
+    .floor-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.1);
+        margin-bottom: 2rem;
+    }
+
+    .floor-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .floor-header h2 {
+        font-family: 'Noto Serif JP', serif;
+        color: var(--primary);
+        margin: 0;
+    }
+
+    .admin-floor {
+        position: relative;
+        height: 600px;
+        background: #a0826d;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .admin-table {
+        position: absolute;
+        cursor: grab;
+        user-select: none;
+    }
+
+    .admin-table.dragging {
+        cursor: grabbing;
+        opacity: 0.8;
+    }
+
+    .admin-table.new-table {
+        animation: popIn 0.3s ease;
+    }
+
+    @keyframes popIn {
+        0% { transform: scale(0); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    .table-top {
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(circle, #8b4513, #4a3021);
+        border-radius: 50%;
+        border: 3px solid #654321;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #f4c430;
+        font-weight: bold;
+        font-size: 1.4rem;
+        position: relative;
+    }
+
+    .large .table-top {
+        width: 160px;
+        height: 90px;
+        border-radius: 20px;
+    }
+
+    .square .table-top {
+        border-radius: 15px;
+    }
+
+    .delete-btn {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        width: 24px;
+        height: 24px;
+        background: #ef4444;
+        color: white;
+        border: 2px solid white;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        opacity: 0;
+        transition: .3s;
+    }
+
+    .admin-table:hover .delete-btn {
+        opacity: 1;
+    }
+
+    .delete-btn:hover {
+        background: #dc2626;
+        transform: scale(1.1);
+    }
+
+    .changes-indicator {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: #fef3c7;
+        color: #92400e;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+
+    <div class="admin-header">
+        <h1>🪑 Управління столиками</h1>
+        <a href="{{ url_for('admin_dashboard') }}" class="back-link">← Назад</a>
+    </div>
+
+    <!-- ADD TABLE FORM -->
+    <div class="add-table-section">
+        <h2>➕ Додати новий столик</h2>
+
+        <div class="form-group">
+            <label class="form-label">🔢 Номер столика *</label>
+            <input type="number" id="tableNumber" class="form-input" placeholder="Введіть номер...">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">🪑 Тип столика *</label>
+            <div class="table-types">
+                <button type="button" class="type-btn" data-type="large">🟥 Великий</button>
+                <button type="button" class="type-btn" data-type="round">🔵 Круглий</button>
+                <button type="button" class="type-btn" data-type="square">🟨 Малий</button>
+            </div>
+        </div>
+
+        <button type="button" class="add-btn" id="addTableBtn">➕ Додати столик</button>
+    </div>
+
+    <!-- FLOOR PLAN -->
+    <div class="floor-container">
+        <div class="floor-header">
+            <div>
+                <h2>🏯 План ресторану</h2>
+                <p style="margin: 0.5rem 0 0 0; opacity: .7; font-size: 0.95rem;">Перетягуйте столики мишкою для розміщення</p>
+            </div>
+            <div>
+                <span id="changesIndicator" class="changes-indicator" style="display: none;">
+                    ⚠️ Є незбережені зміни
+                </span>
+            </div>
+        </div>
+
+        <div class="admin-floor" id="adminFloor">
+            {% for table in tables %}
+            <div class="admin-table {{ table.type }}"
+                 data-id="{{ table.id }}"
+                 data-number="{{ table.number }}"
+                 data-type="{{ table.type }}"
+                 style="left: {{ table.x }}px; top: {{ table.y }}px;">
+                <div class="table-top">
+                    {{ table.number }}
+                    <span class="delete-btn" onclick="deleteTable(this)">×</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <button type="button" class="save-btn" id="saveBtn" disabled>💾 Зберегти всі зміни</button>
+    </div>
+</div>
+
+<script>
+// Стан
+let hasChanges = false;
+let dragged = null;
+let offsetX = 0;
+let offsetY = 0;
+let selectedType = null;
+let newTableCounter = 0;
+
+// Елементи
+const floor = document.getElementById('adminFloor');
+const saveBtn = document.getElementById('saveBtn');
+const addTableBtn = document.getElementById('addTableBtn');
+const tableNumberInput = document.getElementById('tableNumber');
+const changesIndicator = document.getElementById('changesIndicator');
+
+// Вибір типу столика
+document.querySelectorAll('.type-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedType = btn.dataset.type;
+    });
+});
+
+// Додавання нового столика
+addTableBtn.addEventListener('click', () => {
+    const number = tableNumberInput.value.trim();
+    
+    if (!number) {
+        alert('❌ Введіть номер столика!');
+        return;
+    }
+    
+    if (!selectedType) {
+        alert('❌ Оберіть тип столика!');
+        return;
+    }
+
+    // Перевірка на дублікат номера
+    const existingNumbers = Array.from(document.querySelectorAll('.admin-table'))
+        .map(t => t.dataset.number);
+    
+    if (existingNumbers.includes(number)) {
+        alert('❌ Столик з таким номером вже існує!');
+        return;
+    }
+
+    // Створення нового столика
+    const newTable = document.createElement('div');
+    newTable.className = `admin-table ${selectedType} new-table`;
+    newTable.dataset.id = `new_${newTableCounter++}`;
+    newTable.dataset.number = number;
+    newTable.dataset.type = selectedType;
+    newTable.style.left = '50px';
+    newTable.style.top = '50px';
+    
+    newTable.innerHTML = `
+        <div class="table-top">
+            ${number}
+            <span class="delete-btn" onclick="deleteTable(this)">×</span>
+        </div>
+    `;
+
+    floor.appendChild(newTable);
+    initDragging(newTable);
+
+    // Скидання форми
+    tableNumberInput.value = '';
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+    selectedType = null;
+
+    markAsChanged();
+});
+
+// Ініціалізація перетягування для існуючих столиків
+document.querySelectorAll('.admin-table').forEach(table => {
+    initDragging(table);
+});
+
+function initDragging(table) {
+    table.addEventListener('mousedown', e => {
+        if (e.target.classList.contains('delete-btn')) return;
+        
+        dragged = table;
+        const rect = table.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+        table.classList.add('dragging');
+    });
+}
+
+document.addEventListener('mousemove', e => {
+    if (!dragged) return;
+
+    const rect = floor.getBoundingClientRect();
+    let x = e.clientX - rect.left - offsetX;
+    let y = e.clientY - rect.top - offsetY;
+
+    // Обмеження меж
+    x = Math.max(0, Math.min(x, rect.width - dragged.offsetWidth));
+    y = Math.max(0, Math.min(y, rect.height - dragged.offsetHeight));
+
+    dragged.style.left = x + 'px';
+    dragged.style.top = y + 'px';
+});
+
+document.addEventListener('mouseup', () => {
+    if (!dragged) return;
+    
+    dragged.classList.remove('dragging');
+    dragged = null;
+    markAsChanged();
+});
+
+// Видалення столика
+function deleteTable(btn) {
+    if (confirm('🗑️ Видалити цей столик?')) {
+        btn.closest('.admin-table').remove();
+        markAsChanged();
+    }
+}
+
+// Позначити як змінено
+function markAsChanged() {
+    hasChanges = true;
+    saveBtn.disabled = false;
+    changesIndicator.style.display = 'inline-block';
+}
+
+// Збереження змін
+saveBtn.addEventListener('click', async () => {
+    const tables = Array.from(document.querySelectorAll('.admin-table')).map(table => ({
+        id: table.dataset.id,
+        number: parseInt(table.dataset.number),
+        type: table.dataset.type,
+        x: parseInt(table.style.left),
+        y: parseInt(table.style.top)
+    }));
+
+    try {
+        const response = await fetch('/admin/tables/save', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({tables})
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            hasChanges = false;
+            saveBtn.disabled = true;
+            changesIndicator.style.display = 'none';
+            alert('✅ Зміни успішно збережено!');
+            location.reload();
+        } else {
+            alert('❌ Помилка збереження: ' + result.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Помилка з\'єднання з сервером');
+    }
+});
+
+// Попередження про незбережені зміни
+window.addEventListener('beforeunload', (e) => {
+    if (hasChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
+</script>
+
+{% endblock %}

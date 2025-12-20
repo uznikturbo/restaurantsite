@@ -152,6 +152,41 @@
             font-size: 2rem;
         }
     }
+
+    .rating-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    }
+
+    .rating-form {
+        margin: 0;
+    }
+
+    .stars {
+        display: flex;
+        flex-direction: row-reverse;
+    }
+
+    .stars button {
+        background: none;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+        color: #ccc;
+        padding: 0 2px;
+        transition: color 0.2s, transform 0.1s;
+    }
+
+    .stars button:hover,
+    .stars button:hover ~ button {
+        color: #f5b301;
+    }
+
+    .stars button:active {
+        transform: scale(0.9);
+    }
+
 </style>
 {% endblock %}
 
@@ -180,7 +215,22 @@
 
             <div class="product-specs">
                 <h3 style="margin-bottom: 1rem; color: var(--primary);">📋 Характеристики</h3>
-                
+                <div class="spec-row rating-row">
+                    <span class="spec-label">Рейтинг:</span>
+                    <span class="spec-value">{{ position.rating or '0.0' }}</span>
+                    <form class="rating-form" action="{{ url_for('add_rating', id=position.id) }}" method="post">
+                        <div class="stars">
+                            {% for i in range(5, 0, -1) %}
+                                <button type="submit" name="rating" value="{{ i }}" aria-label="{{ i }} звезд">
+                                    ★
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </form>
+                </div>
+
+
+
                 {% if position.weight %}
                 <div class="spec-row">
                     <span class="spec-label">Вага:</span>

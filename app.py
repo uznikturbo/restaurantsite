@@ -4,11 +4,21 @@ import json
 import os
 import uuid
 from datetime import datetime
+from decimal import Decimal
 from enum import Enum
 from functools import wraps
 
 from dotenv import load_dotenv
-from flask import Flask, abort, flash, redirect, render_template, request, url_for
+from flask import (
+    Flask,
+    abort,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask_login import (
     LoginManager,
     UserMixin,
@@ -18,6 +28,7 @@ from flask_login import (
     logout_user,
 )
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.ext.mutable import MutableList
 from werkzeug.security import check_password_hash, generate_password_hash
 
 load_dotenv()
@@ -105,6 +116,8 @@ class Product(db.Model):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(400))
     price = db.Column(db.Numeric(10, 2), nullable=False)
+    rating = db.Column(db.Numeric(10, 1), nullable=False)
+    ratings = db.Column(MutableList.as_mutable(db.ARRAY(db.Numeric(10, 1))))
 
     weight = db.Column(db.Integer)
     calories = db.Column(db.Integer)
@@ -201,6 +214,11 @@ class Table(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     number = db.Column(db.Integer, unique=True, nullable=False)
     seats = db.Column(db.Integer, nullable=False)
+    is_available = db.Column(db.Boolean, nullable=False)
+    type = db.Column(db.String(30), nullable=False)
+
+    x = db.Column(db.Integer, nullable=False)
+    y = db.Column(db.Integer, nullable=False)
 
 
 class Reservation(db.Model):
@@ -211,6 +229,8 @@ class Reservation(db.Model):
     reserved_at = db.Column(db.DateTime, nullable=False)
     guests = db.Column(db.Integer, nullable=False)
     status = db.Column(db.String(30), default="active")
+    phone = db.Column(db.String(30), nullable=False)
+    comment = db.Column(db.String(400))
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="cascade"))
     table_id = db.Column(db.Integer, db.ForeignKey("tables.id"))
@@ -333,6 +353,20 @@ def position(id):
     return render_template("position.html", position=position)
 
 
+@app.route("/position/<int:id>/rating", methods=["POST"])
+def add_rating(id):
+    position = db.session.get(Product, id)
+    if not position.ratings:
+        position.ratings = []
+    ratings = position.ratings
+    ratings.append(Decimal(request.form.get("rating")))
+    rating = round(sum(ratings) / Decimal(len(ratings)), 1)
+    position.ratings = ratings
+    position.rating = rating
+    db.session.commit()
+    return redirect(url_for("position", id=position.id))
+
+
 @app.route("/cart")
 @login_required
 def cart():
@@ -358,7 +392,6 @@ def add_to_cart(product_id):
     return redirect(url_for("cart"))
 
 
-# исправлено: маршрут и имя параметра согласованы
 @app.route("/cart/remove/<int:item_id>", methods=["POST"])
 @login_required
 def remove_from_cart(item_id):
@@ -395,7 +428,6 @@ def create_order():
         flash("Cart is empty", "warning")
         return redirect(url_for("cart"))
 
-    # безопаснее: попытаться получить OrderType, иначе вернуть ошибку
     try:
         order_type = OrderType(request.form.get("order_type"))
     except Exception:
@@ -405,7 +437,6 @@ def create_order():
     phone = request.form.get("phone")
     address = request.form.get("address")
 
-    # total будет Decimal (Numeric), json мы передаём как строку ниже
     total = sum(i.product.price * i.quantity for i in items)
 
     order = Order(
@@ -431,7 +462,6 @@ def create_order():
             )
         )
 
-    # очистка корзины пользователя (копия логики; если хотим оставить корзину — убрать эту строку)
     CartItem.query.filter_by(user_id=current_user.id).delete()
     db.session.commit()
 
@@ -532,25 +562,20 @@ def liqpay_order_callback():
         app.logger.info(
             f"Processing order {order_id}, current payment_status: {order.payment_status}, LiqPay status: {status}"
         )
-
-        # проверяем, что платеж ещё ожидается
         if order.payment_status != PaymentStatus.pending:
             app.logger.info(
                 f"Order {order_id} already processed (payment_status: {order.payment_status})"
             )
             return "OK", 200
 
-        # успешный платёж
         if status in ["success", "sandbox"]:
             order.payment_status = PaymentStatus.paid
-            # при желании можно переводить order.status дальше: OrderStatus.cooking/ready и т.д.
             db.session.commit()
             app.logger.info(
                 f"Order {order_id} payment marked as paid (LiqPay status: {status})"
             )
             return "OK", 200
 
-        # неуспешный платёж
         elif status in ["failure", "error", "reversed"]:
             order.payment_status = PaymentStatus.failed
             db.session.commit()
@@ -577,7 +602,6 @@ def order_result(order_id):
     if order.user_id != current_user.id:
         abort(403)
 
-    # проверяем payment_status (enum), а не order.status строкой
     if order.payment_status == PaymentStatus.paid:
         return redirect(url_for("order_success", order_id=order_id))
     elif order.payment_status == PaymentStatus.failed:
@@ -703,27 +727,6 @@ def admin_toggle_product(product_id):
     return redirect(url_for("admin_products"))
 
 
-@app.route("/admin/categories")
-@admin_required
-def admin_categories():
-    categories = Category.query.all()
-    return render_template("admin/categories.html", categories=categories)
-
-
-@app.route("/admin/categories/add", methods=["POST"])
-@admin_required
-def admin_add_category():
-    name = request.form.get("name")
-    if Category.query.filter_by(name=name).first():
-        flash("Категория уже существует", "error")
-    else:
-        db.session.add(Category(name=name))
-        db.session.commit()
-        flash("Категория добавлена", "success")
-
-    return redirect(url_for("admin_categories"))
-
-
 @app.route("/admin/users")
 @admin_required
 def admin_users():
@@ -745,6 +748,119 @@ def admin_toggle_user_admin(user_id):
     flash("Роль пользователя изменена", "success")
 
     return redirect(url_for("admin_users"))
+
+
+@app.route("/admin/tables")
+def admin_tables():
+    tables = Table.query.all()
+    return render_template("admin/tables.html", tables=tables)
+
+
+@app.route("/admin/tables/save", methods=["POST"])
+def add_table():
+    data = request.get_json()
+    tables = data.get("tables", [])
+
+    try:
+        Table.query.delete()
+
+        for table_data in tables:
+            if table_data["type"] == "round":
+                seats = 2
+            elif table_data["type"] == "square":
+                seats = 4
+            else:
+                seats = 6
+
+            if str(table_data["id"]).startswith("new_"):
+                table = Table(
+                    number=table_data["number"],
+                    type=table_data["type"],
+                    is_available=True,
+                    seats=seats,
+                    x=table_data["x"],
+                    y=table_data["y"],
+                )
+            else:
+                table = Table(
+                    number=table_data["number"],
+                    type=table_data["type"],
+                    x=table_data["x"],
+                    y=table_data["y"],
+                )
+            db.session.add(table)
+        db.session.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": str(e)})
+
+
+@app.route("/admin/tables/update/position", methods=["POST"])
+def update_table_position():
+    data = request.json
+    table = db.session.get(Table, data.get("id"))
+    table.x = data.get("x")
+    table.y = data.get("y")
+    db.session.commit()
+    return {"status": "ok"}
+
+
+@app.route("/book")
+def book():
+    tables = Table.query.all()
+
+    tables_data = [
+        {
+            "id": t.id,
+            "number": t.number,
+            "type": t.type,
+            "seats": t.seats,
+            "available": t.is_available,
+            "x": t.x,
+            "y": t.y,
+        }
+        for t in tables
+    ]
+    return render_template("book.html", tables_data=tables_data)
+
+
+@app.route("/reservation/create", methods=["POST"])
+@login_required
+def create_reservation():
+    table_id = request.form.get("table_id")
+    date = request.form.get("date")
+    time = request.form.get("time")
+    guests = request.form.get("guests")
+    phone = request.form.get("phone")
+    comment = request.form.get("comment")
+
+    datetime_str = f"{date} {time}"
+    reservation_datetime = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M")
+
+    reservation = Reservation(
+        user_id=current_user.id,
+        table_id=table_id,
+        reserved_at=reservation_datetime,
+        guests=guests,
+        status="active",
+        phone=phone,
+        comment=comment,
+    )
+
+    table = Table.query.get(table_id)
+    table.is_available = False
+
+    db.session.add(reservation)
+    db.session.commit()
+
+    flash("Столик успішно забронований!", "success")
+    return redirect(url_for("profile"))
+
+
+@app.route("/details")
+def details():
+    return render_template("details.html")
 
 
 @app.route("/logout")

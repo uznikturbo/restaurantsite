@@ -387,6 +387,7 @@
                 {% if current_user.is_authenticated %}
                     <li><a href="{{ url_for('cart') }}" class="nav-link">Кошик 🛒</a></li>
                     <li><a href="{{ url_for('profile') }}" class="nav-link">Профіль</a></li>
+                    <li><a href="{{ url_for('book') }}" class="nav-link">Бронювання</a></li>
                     {% if current_user.is_admin %}
                         <li><a href="{{ url_for('admin_dashboard') }}" class="nav-link">Адмін</a></li>
                     {% endif %}
@@ -426,9 +427,9 @@
             </div>
             <div class="footer-section">
                 <h3>Контакти</h3>
-                <p>📞 +380 XX XXX XX XX</p>
+                <p>📞 +380 11 222 33 44</p>
                 <p>📧 info@sakura-restaurant.ua</p>
-                <p>📍 вул. Приклад, 123</p>
+                <p>📍 вул. Чорновола, 23</p>
             </div>
             <div class="footer-section">
                 <h3>Години роботи</h3>
@@ -437,13 +438,13 @@
             </div>
             <div class="footer-section">
                 <h3>Соціальні мережі</h3>
-                <a href="#">Instagram</a>
-                <a href="#">Facebook</a>
-                <a href="#">TikTok</a>
+                <a href="https://instagram.com">Instagram</a>
+                <a href="https://facebook.com">Facebook</a>
+                <a href="https://tiktok.com">TikTok</a>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2024 桜レストラン. Всі права захищені.</p>
+            <p>&copy; 2025 桜レストラン. Всі права захищені.</p>
         </div>
     </footer>
 

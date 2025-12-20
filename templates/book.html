@@ -1,0 +1,923 @@
+{% extends "base.html" %}
+
+{% block title %}Бронювання столика - 桜レストラン{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================== BASE ================== */
+.booking-container {
+    max-width: 1600px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+    animation: fadeIn 1s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.booking-content {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 3rem;
+    align-items: start;
+}
+
+/* ================== HERO ================== */
+.booking-hero {
+    background: linear-gradient(135deg, rgba(212,40,45,.95), rgba(26,26,26,.9)),
+        url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600') center/cover;
+    padding: 4rem;
+    border-radius: 25px;
+    text-align: center;
+    color: #fff;
+    margin-bottom: 3rem;
+    box-shadow: 0 20px 50px rgba(0,0,0,.3);
+}
+
+.booking-hero h1 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+}
+
+.booking-hero p {
+    font-size: 1.3rem;
+    opacity: .9;
+}
+
+/* ================== LAYOUT ================== */
+.restaurant-layout {
+    background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+    padding: 2rem;
+    border-radius: 25px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.3);
+    overflow: hidden; /* Щоб нічого не вилазило за рамки картки */
+}
+
+.layout-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.layout-header h2 {
+    color: #fff;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.layout-header p {
+    color: rgba(255,255,255,.7);
+    font-size: 1rem;
+}
+
+.layout-legend {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    color: #fff;
+    background: rgba(255,255,255,.1);
+    padding: .7rem 1.3rem;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    backdrop-filter: blur(10px);
+}
+
+/* ================== FLOOR (Вікно перегляду) ================== */
+.restaurant-floor {
+    background: linear-gradient(135deg, #a0826d, #8b6f5b);
+    padding: 20px;
+    border-radius: 20px;
+    border: 3px solid #d4282d;
+    box-shadow: inset 0 4px 20px rgba(0,0,0,.2);
+    
+    /* Додаємо скрол, якщо схема не вміщується */
+    overflow-x: auto;
+    overflow-y: hidden;
+    position: relative;
+    
+    /* Стилізація скролбару */
+    scrollbar-width: thin;
+    scrollbar-color: #d4282d #2c2c2c;
+}
+
+.restaurant-floor::-webkit-scrollbar {
+    height: 8px;
+}
+.restaurant-floor::-webkit-scrollbar-track {
+    background: #2c2c2c;
+    border-radius: 4px;
+}
+.restaurant-floor::-webkit-scrollbar-thumb {
+    background-color: #d4282d;
+    border-radius: 4px;
+}
+
+/* ================== TABLES CONTAINER (Карта) ================== */
+.tables-container {
+    position: relative;
+    /* Фіксована ширина "карти". Це гарантує, що координати не поїдуть */
+    min-width: 900px; 
+    height: 600px; 
+    margin: 0 auto;
+}
+
+/* Шар для столиків, щоб відділити їх від бару */
+.tables-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+}
+
+/* ================== BAR COUNTER ================== */
+.bar-counter {
+    position: absolute;
+    right: 0; /* Притиснутий до правого краю карти */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 80px;
+    height: 400px;
+    background: linear-gradient(180deg, #4a3021, #2d1f15);
+    border-radius: 15px 0 0 15px;
+    border: 4px solid #1a0f0a;
+    border-right: none;
+    box-shadow: 
+        -5px 10px 30px rgba(0,0,0,.6),
+        inset 0 2px 10px rgba(255,255,255,.1);
+    z-index: 5;
+}
+
+.bar-top {
+    position: absolute;
+    top: -8px;
+    left: -5px;
+    right: 0;
+    height: 15px;
+    background: linear-gradient(180deg, #8b4513, #654321);
+    border-radius: 8px 0 0 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,.4);
+}
+
+.bar-stools {
+    position: absolute;
+    left: -35px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.bar-stool {
+    width: 30px;
+    height: 30px;
+    background: radial-gradient(circle at 30% 30%, #d4282d, #8b1a1f);
+    border-radius: 50%;
+    border: 3px solid #5a0f13;
+    box-shadow: 0 4px 12px rgba(0,0,0,.5);
+}
+
+.bar-stool::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 20px;
+    background: #3d2817;
+    border-radius: 2px;
+}
+
+.bar-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #f4c430;
+    font-family: 'Noto Serif JP', serif;
+    font-weight: bold;
+    font-size: 0.9rem;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    letter-spacing: 3px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,.5);
+}
+
+.bar-bottles {
+    position: absolute;
+    right: 5px;
+    top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.bottle {
+    width: 8px;
+    height: 25px;
+    background: linear-gradient(180deg, rgba(255,255,255,.3), rgba(139,69,19,.5));
+    border-radius: 2px;
+    box-shadow: inset 0 1px 2px rgba(255,255,255,.2);
+}
+
+/* ================== TABLE WRAPPER ================== */
+.table-wrapper {
+    position: absolute;
+    display: inline-block;
+    cursor: pointer;
+    transition: all .3s ease;
+    user-select: none;
+}
+
+.table-wrapper:hover:not(.occupied) {
+    transform: scale(1.08);
+    filter: brightness(1.1);
+    z-index: 20;
+}
+
+.table-wrapper.occupied {
+    opacity: .4;
+    cursor: not-allowed;
+    filter: grayscale(70%);
+}
+
+.table-wrapper.selected {
+    transform: scale(1.12);
+    z-index: 30;
+}
+
+.table-wrapper.selected::before {
+    content: '★';
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2rem;
+    color: #fbbf24;
+    animation: starPulse 1.5s infinite;
+}
+
+@keyframes starPulse {
+    0%, 100% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.2); }
+}
+
+/* ================== TABLE ================== */
+.japanese-table {
+    position: relative;
+    display: inline-block;
+}
+
+/* Round table - 2 місця */
+.japanese-table.round {
+    width: 100px;
+    height: 100px;
+}
+
+/* Square table - 4 місця */
+.japanese-table.square {
+    width: 100px;
+    height: 100px;
+}
+
+/* Large table - 6 місць */
+.japanese-table.large {
+    width: 160px;
+    height: 90px;
+}
+
+.table-top {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 30% 30%, #a0522d, #6b3410);
+    border: 4px solid #4a2511;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+        0 8px 25px rgba(0,0,0,.5),
+        inset 0 2px 5px rgba(255,255,255,.2);
+    position: relative;
+}
+
+.japanese-table.round .table-top {
+    border-radius: 50%;
+}
+
+.japanese-table.square .table-top {
+    border-radius: 15px;
+}
+
+.japanese-table.large .table-top {
+    border-radius: 20px;
+}
+
+/* ================== TABLE NUMBER ================== */
+.table-number-display {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #f4c430;
+    font-family: 'Noto Serif JP', serif;
+    text-shadow: 2px 2px 4px rgba(0,0,0,.5);
+    z-index: 2;
+}
+
+/* ================== CHAIRS (CUSHIONS) ================== */
+.chair {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background: radial-gradient(circle at 30% 30%, #d4282d, #8b1a1f);
+    border-radius: 50%;
+    border: 3px solid #5a0f13;
+    box-shadow: 0 4px 12px rgba(0,0,0,.5);
+    z-index: 1;
+}
+
+/* ROUND TABLE - 2 стільці */
+.japanese-table.round .chair:nth-child(1) {
+    top: -17px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.japanese-table.round .chair:nth-child(2) {
+    bottom: -17px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* SQUARE TABLE - 4 стільці */
+.japanese-table.square .chair:nth-child(1) {
+    top: -17px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.japanese-table.square .chair:nth-child(2) {
+    right: -17px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.japanese-table.square .chair:nth-child(3) {
+    bottom: -17px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.japanese-table.square .chair:nth-child(4) {
+    left: -17px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* LARGE TABLE - 6 стільців */
+.japanese-table.large .chair {
+    width: 28px;
+    height: 28px;
+}
+
+.japanese-table.large .chair:nth-child(1) {
+    top: -16px;
+    left: 15%;
+}
+
+.japanese-table.large .chair:nth-child(2) {
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.japanese-table.large .chair:nth-child(3) {
+    top: -16px;
+    right: 15%;
+}
+
+.japanese-table.large .chair:nth-child(4) {
+    bottom: -16px;
+    left: 15%;
+}
+
+.japanese-table.large .chair:nth-child(5) {
+    bottom: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.japanese-table.large .chair:nth-child(6) {
+    bottom: -16px;
+    right: 15%;
+}
+
+/* ================== STATUS BADGE ================== */
+.status-badge {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,.3);
+    z-index: 3;
+    border: 2px solid white;
+}
+
+.status-available {
+    background: #10b981;
+    color: #fff;
+}
+
+.status-occupied {
+    background: #ef4444;
+    color: #fff;
+}
+
+/* ================== BOOKING FORM ================== */
+.booking-form-container {
+    background: linear-gradient(180deg, #ffffff, #fafafa);
+    padding: 2.8rem;
+    border-radius: 30px;
+    box-shadow:
+        0 20px 40px rgba(0,0,0,.12),
+        inset 0 1px 0 rgba(255,255,255,.8);
+    position: sticky;
+    top: 100px;
+    border: 1px solid rgba(0,0,0,.05);
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.form-header h2 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 2.2rem;
+    color: #d4282d;
+    letter-spacing: .5px;
+    margin-bottom: 0.8rem;
+}
+
+.form-header::after {
+    content: "━━━ ✦ ━━━";
+    display: block;
+    color: #f4c430;
+    font-size: .9rem;
+}
+
+.info-message {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: #1e40af;
+    padding: 1.2rem 1.5rem;
+    border-radius: 15px;
+    font-size: .95rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #3b82f6;
+}
+
+.selected-table-info {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-radius: 20px;
+    padding: 1.8rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    border: 2px solid #f59e0b;
+    box-shadow: 0 10px 25px rgba(245,158,11,.3);
+}
+
+.selected-table-info h3 {
+    font-size: 1.8rem;
+    color: #92400e;
+    margin-bottom: .5rem;
+    font-family: 'Noto Serif JP', serif;
+}
+
+.selected-table-info p {
+    font-size: 1.1rem;
+    color: #78350f;
+    font-weight: 600;
+}
+
+.booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+}
+
+.form-group {
+    position: relative;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: .6rem;
+    font-size: .95rem;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 1.1rem 1.5rem;
+    border-radius: 16px;
+    border: 2px solid #e5e7eb;
+    font-size: 1rem;
+    background: #fff;
+    transition: all .3s ease;
+    font-family: inherit;
+}
+
+.form-input:hover,
+.form-select:hover,
+.form-textarea:hover {
+    border-color: #f4c430;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: #d4282d;
+    box-shadow: 0 0 0 4px rgba(212,40,45,.15);
+}
+
+.form-textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.submit-btn {
+    margin-top: 1rem;
+    padding: 1.3rem;
+    border-radius: 60px;
+    background: linear-gradient(135deg, #d4282d, #b01f24);
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    box-shadow:
+        0 10px 25px rgba(212,40,45,.4),
+        inset 0 2px 0 rgba(255,255,255,.2);
+    transition: all .3s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow:
+        0 15px 35px rgba(212,40,45,.55),
+        inset 0 2px 0 rgba(255,255,255,.25);
+}
+
+.submit-btn:disabled {
+    background: linear-gradient(135deg, #d1d5db, #9ca3af);
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* ================== SPECIAL OFFERS ================== */
+.special-offers {
+    margin-top: 4rem;
+    background: white;
+    padding: 3rem;
+    border-radius: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.1);
+}
+
+.special-offers h3 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 2rem;
+    color: #d4282d;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.offers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.offer-card {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    padding: 2rem;
+    border-radius: 20px;
+    text-align: center;
+    transition: .3s;
+    border: 2px solid transparent;
+}
+
+.offer-card:hover {
+    transform: translateY(-5px);
+    border-color: #f59e0b;
+    box-shadow: 0 15px 30px rgba(245,158,11,.3);
+}
+
+.offer-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.offer-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #92400e;
+    margin-bottom: 0.5rem;
+}
+
+.offer-description {
+    color: #78350f;
+    font-size: 0.95rem;
+}
+
+/* ================== RESPONSIVE ================== */
+@media (max-width: 1200px) {
+    .booking-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .booking-form-container {
+        position: relative;
+        top: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .booking-hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    /* Змінюємо паддінги для мобільного, але скрол в .restaurant-floor все вирішує */
+    .restaurant-floor {
+        padding: 1rem;
+    }
+    
+    .booking-form-container {
+        padding: 2rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="booking-container">
+    <div class="booking-hero">
+        <h1>🏮 Бронювання Столика</h1>
+        <p>Оберіть ідеальне місце для вашого візиту</p>
+    </div>
+
+    <div class="booking-content">
+        <div class="restaurant-layout">
+            <div class="layout-header">
+                <h2>🏯 План Ресторану</h2>
+                <p>Натисніть на столик для вибору</p>
+            </div>
+
+            <div class="layout-legend">
+                <div class="legend-item">✓ Вільний</div>
+                <div class="legend-item">★ Обраний</div>
+                <div class="legend-item">✗ Зайнятий</div>
+            </div>
+
+            <div class="restaurant-floor">
+                <div class="tables-container" id="tablesContainer">
+                    
+                    <div id="tablesLayer" class="tables-layer"></div>
+                    
+                    <div class="bar-counter">
+                        <div class="bar-top"></div>
+                        <div class="bar-label">BAR</div>
+                        <div class="bar-bottles">
+                            <div class="bottle"></div>
+                            <div class="bottle"></div>
+                            <div class="bottle"></div>
+                            <div class="bottle"></div>
+                            <div class="bottle"></div>
+                        </div>
+                        <div class="bar-stools">
+                            <div class="bar-stool"></div>
+                            <div class="bar-stool"></div>
+                            <div class="bar-stool"></div>
+                            <div class="bar-stool"></div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <div class="booking-form-container">
+            <div class="form-header">
+                <h2>📝 Деталі бронювання</h2>
+            </div>
+
+            <div class="info-message" id="infoMessage">
+                ℹ️ Спочатку оберіть столик на плані ресторану
+            </div>
+
+            <div class="selected-table-info" id="selectedTableInfo" style="display: none;">
+                <h3>Столик #<span id="selectedTableNumber">-</span></h3>
+                <p>Місць: <span id="selectedTableSeats">-</span> 👥</p>
+            </div>
+
+            <form action="{{ url_for('create_reservation') }}" method="POST" class="booking-form" id="bookingForm">
+                <input type="hidden" name="table_id" id="tableIdInput">
+
+                <div class="form-group">
+                    <label class="form-label">📅 Дата візиту *</label>
+                    <input type="date" name="date" class="form-input" required id="dateInput">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">🕐 Час візиту *</label>
+                    <input type="time" name="time" class="form-input" required id="timeInput">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">👥 Кількість гостей *</label>
+                    <select name="guests" class="form-select" required id="guestsInput">
+                        <option value="">Оберіть кількість</option>
+                        <option value="1">1 гість</option>
+                        <option value="2">2 гості</option>
+                        <option value="3">3 гості</option>
+                        <option value="4">4 гості</option>
+                        <option value="5">5 гостей</option>
+                        <option value="6">6 гостей</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">👤 Ім'я *</label>
+                    <input type="text" name="name" class="form-input" required placeholder="Ваше ім'я">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">📞 Телефон *</label>
+                    <input type="tel" name="phone" class="form-input" required placeholder="+380 XX XXX XX XX">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">💬 Коментар (необов'язково)</label>
+                    <textarea name="comment" class="form-textarea" placeholder="Особливі побажання, алергії, святкування..."></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn" disabled>
+                    ✨ Забронювати столик
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="special-offers">
+        <h3>🎉 Спеціальні пропозиції</h3>
+        <div class="offers-grid">
+            <div class="offer-card">
+                <div class="offer-icon">🎂</div>
+                <div class="offer-title">День народження</div>
+                <div class="offer-description">Безкоштовний десерт для іменинника</div>
+            </div>
+            <div class="offer-card">
+                <div class="offer-icon">💑</div>
+                <div class="offer-title">Романтична вечеря</div>
+                <div class="offer-description">Столик біля вікна + свічки</div>
+            </div>
+            <div class="offer-card">
+                <div class="offer-icon">🍾</div>
+                <div class="offer-title">Бізнес-ланч</div>
+                <div class="offer-description">Знижка 15% з 12:00 до 15:00</div>
+            </div>
+            <div class="offer-card">
+                <div class="offer-icon">👨‍👩‍👧‍👦</div>
+                <div class="offer-title">Сімейна вечеря</div>
+                <div class="offer-description">Дитяче меню в подарунок</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const tables = {{ tables_data | tojson }};
+// Ми звертаємось до шару для столів, а не до загального контейнера
+const tablesLayer = document.getElementById('tablesLayer');
+const submitBtn = document.getElementById('submitBtn');
+const tableIdInput = document.getElementById('tableIdInput');
+const selectedTableInfo = document.getElementById('selectedTableInfo');
+const selectedTableNumber = document.getElementById('selectedTableNumber');
+const selectedTableSeats = document.getElementById('selectedTableSeats');
+const infoMessage = document.getElementById('infoMessage');
+
+let selectedTableId = null;
+
+// Визначення кількості місць залежно від типу
+function getSeatsCount(type) {
+    const seatsMap = {
+        'round': 2,
+        'square': 4,
+        'large': 6
+    };
+    return seatsMap[type] || 2;
+}
+
+// Створення стільців
+function createChairs(type) {
+    const count = getSeatsCount(type);
+    let html = '';
+    for (let i = 0; i < count; i++) {
+        html += `<div class="chair"></div>`;
+    }
+    return html;
+}
+
+// Рендеринг столиків
+function renderTables() {
+    // Очищаємо лише шар зі столами, Бар залишається на місці
+    tablesLayer.innerHTML = '';
+
+    tables.forEach(table => {
+        const wrapper = document.createElement('div');
+        wrapper.className = `table-wrapper ${table.available ? '' : 'occupied'}`;
+        wrapper.style.left = table.x + 'px';
+        wrapper.style.top = table.y + 'px';
+        wrapper.dataset.tableId = table.id;
+
+        const seats = getSeatsCount(table.type);
+
+        wrapper.innerHTML = `
+            <div class="japanese-table ${table.type}">
+                ${createChairs(table.type)}
+                <div class="table-top">
+                    <div class="table-number-display">${table.number}</div>
+                </div>
+                <div class="status-badge ${table.available ? 'status-available' : 'status-occupied'}">
+                    ${table.available ? '✓' : '✗'}
+                </div>
+            </div>
+        `;
+
+        if (table.available) {
+            wrapper.addEventListener('click', () => selectTable(table, wrapper));
+        }
+
+        tablesLayer.appendChild(wrapper);
+    });
+}
+
+// Вибір столика
+function selectTable(table, wrapper) {
+    // Зняти виділення з інших
+    document.querySelectorAll('.table-wrapper').forEach(w => {
+        w.classList.remove('selected');
+    });
+
+    // Виділити обраний
+    wrapper.classList.add('selected');
+    selectedTableId = table.id;
+
+    // Оновити форму
+    tableIdInput.value = table.id;
+    selectedTableNumber.textContent = table.number;
+    selectedTableSeats.textContent = getSeatsCount(table.type);
+
+    // Показати інфо про обраний столик
+    selectedTableInfo.style.display = 'block';
+    infoMessage.style.display = 'none';
+
+    // Активувати кнопку
+    submitBtn.disabled = false;
+}
+
+// Встановлення мінімальної дати
+const dateInput = document.getElementById('dateInput');
+const today = new Date().toISOString().split('T')[0];
+dateInput.min = today;
+dateInput.value = today;
+
+// Встановлення часу за замовчуванням
+const timeInput = document.getElementById('timeInput');
+timeInput.value = '19:00';
+
+// Ініціалізація
+renderTables();
+</script>
+
+{% endblock %}

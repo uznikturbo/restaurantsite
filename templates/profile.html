@@ -343,7 +343,7 @@
                         <span class="order-status status-{{ reservation.status }}">{{ reservation.status }}</span>
                     </div>
                     <div class="order-details">
-                        <p><strong>📅 Дата:</strong> {{ reservation.datetime.strftime('%d.%m.%Y %H:%M') }}</p>
+                        <p><strong>📅 Дата:</strong> {{ reservation.reserved_at }}</p>
                         <p><strong>👥 Гостей:</strong> {{ reservation.guests }}</p>
                         {% if reservation.table %}
                         <p><strong>🪑 Столик:</strong> №{{ reservation.table.number }} ({{ reservation.table.seats }} місць)</p>

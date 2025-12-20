@@ -367,6 +367,22 @@
             padding: 0.6rem 1.2rem;
             font-size: 0.9rem;
         }
+        
+    }
+
+    .stars {
+        display: flex;
+        flex-direction: row-reverse;
+    }
+
+    .stars button {
+        background: none;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+        color: #ccc;
+        padding: 0 2px;
+        transition: color 0.2s, transform 0.1s;
     }
 </style>
 {% endblock %}
@@ -412,6 +428,10 @@
                 </div>
 
                 <div class="product-content">
+                    <div class="stars">
+                        <p>{{ product.rating or "0.0"}}/5.0★</p>
+                    </div>
+
                     <h3>{{ product.name }}</h3>
                     
                     <p class="product-description">
