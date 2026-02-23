@@ -93,5 +93,5 @@ sakura-restaurant/
 ---
 
 <div align="center">
-  <sub>Розроблено для портфоліо | 2024</sub>
+  <sub>Розроблено для портфоліо | 2026</sub>
 </div>
