@@ -41,7 +41,7 @@
 ---
 
 ## `>` СТРУКТУРА ПРОЄКТУ
-
+```
 sakura-restaurant/
 ├── static/              # Статичні файли (CSS, JS, Images)
 ├── templates/           # Jinja2 шаблони (base.html, index.html, admin/...)
@@ -53,7 +53,7 @@ sakura-restaurant/
 ├── forms.py             # Валідація форм (Flask-WTF)
 ├── utils.py             # Утиліти, конфігурація та робота з API
 └── extensions.py        # Ініціалізація розширень (db, login_manager)
-
+```
 
 ---
 
