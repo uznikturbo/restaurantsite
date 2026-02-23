@@ -61,7 +61,7 @@ sakura-restaurant/
 
 1.  **Клонуйте репозиторій:**
     ```bash
-    git clone [https://github.com/your-username/sakura-restaurant.git](https://github.com/your-username/sakura-restaurant.git)
+    git clone https://github.com/uznikturbo/restaurantsite.git
     cd sakura-restaurant
     ```
 
