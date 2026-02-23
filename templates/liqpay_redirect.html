@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оплата — 桜 Sakura</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #f7f3ee;
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .card {
+            background: #fff;
+            border-radius: 6px;
+            border: 1px solid rgba(26,18,8,.08);
+            padding: 3rem;
+            max-width: 440px;
+            width: 90%;
+            text-align: center;
+        }
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 300;
+            color: #1a1208;
+            margin-bottom: 2rem;
+        }
+        .logo span { color: #c0392b; }
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 300;
+            margin-bottom: .75rem;
+        }
+        p { font-size: .9rem; color: rgba(26,18,8,.5); margin-bottom: 2rem; line-height: 1.6; }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid rgba(26,18,8,.08);
+            border-top-color: #c0392b;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo"><span>桜</span> Sakura</div>
+        <div class="spinner"></div>
+        <h1>Переходимо до оплати</h1>
+        <p>Ви будете перенаправлені на сторінку LiqPay.<br>Будь ласка, зачекайте...</p>
+        <form id="liqpayForm" action="https://www.liqpay.ua/api/3/checkout" method="POST" accept-charset="utf-8">
+            <input type="hidden" name="data" value="{{ data }}">
+            <input type="hidden" name="signature" value="{{ signature }}">
+        </form>
+    </div>
+    <script>
+        setTimeout(() => document.getElementById('liqpayForm').submit(), 1200);
+    </script>
+</body>
+</html>

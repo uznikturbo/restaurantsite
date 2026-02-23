@@ -3,476 +3,564 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Японський Ресторан{% endblock %}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+    <title>{% block title %}桜 — Японський Ресторан{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Noto+Serif+JP:wght@200;300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --primary: #d4282d;
-            --secondary: #1a1a1a;
-            --accent: #f4c430;
-            --text: #2c2c2c;
-            --bg: #fafafa;
-            --white: #ffffff;
-            --shadow: rgba(0, 0, 0, 0.1);
+            --ink:     #1a1208;
+            --paper:   #f7f3ee;
+            --silk:    #ede8e0;
+            --red:     #c0392b;
+            --red-dim: #9b2c2c;
+            --gold:    #c9a84c;
+            --mist:    rgba(26,18,8,.06);
+            --shadow:  rgba(26,18,8,.12);
+            --r:       4px;
         }
+
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Noto Sans JP', sans-serif;
-            background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
-            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            background: var(--paper);
+            color: var(--ink);
             min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
+            font-size: 15px;
+            line-height: 1.7;
         }
 
+        /* ── Grain overlay ── */
         body::before {
             content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                radial-gradient(circle at 20% 50%, rgba(212, 40, 45, 0.03) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(244, 196, 48, 0.03) 0%, transparent 50%);
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
             pointer-events: none;
-            z-index: 0;
+            z-index: 9998;
+            opacity: .5;
         }
 
-        /* Navbar */
-        .navbar {
-            background: var(--white);
-            box-shadow: 0 2px 20px var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            animation: slideDown 0.5s ease;
+        /* ══════════════════════════════
+           NAV
+        ══════════════════════════════ */
+        .nav {
+            position: sticky; top: 0; z-index: 900;
+            background: rgba(247,243,238,.92);
+            backdrop-filter: blur(16px) saturate(1.4);
+            border-bottom: 1px solid rgba(26,18,8,.08);
         }
 
-        @keyframes slideDown {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .navbar-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-family: 'Noto Serif JP', serif;
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: transform 0.3s ease;
-        }
-
-        .logo:hover {
-            transform: scale(1.05);
-        }
-
-        .logo::before {
-            content: '🍱';
-            font-size: 2rem;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .nav-menu {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-            align-items: center;
-        }
-
-        .nav-link {
-            color: var(--text);
-            text-decoration: none;
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .nav-link::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--primary);
-            transition: width 0.3s ease;
-        }
-
-        .nav-link:hover::before {
-            width: 100%;
-        }
-
-        .nav-link:hover {
-            color: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .nav-link.active {
-            background: var(--primary);
-            color: var(--white);
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: var(--white);
-            padding: 0.7rem 1.5rem;
-            border: none;
-            border-radius: 25px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            box-shadow: 0 4px 15px rgba(212, 40, 45, 0.3);
-        }
-
-        .btn-primary:hover {
-            background: #b01f24;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(212, 40, 45, 0.4);
-        }
-
-        /* Mobile Menu Toggle */
-        .menu-toggle {
-            display: none;
-            flex-direction: column;
-            cursor: pointer;
-            gap: 5px;
-        }
-
-        .menu-toggle span {
-            width: 25px;
-            height: 3px;
-            background: var(--primary);
-            border-radius: 3px;
-            transition: all 0.3s ease;
-        }
-
-        /* Flash Messages */
-        .flash-messages {
-            max-width: 1400px;
-            margin: 1rem auto;
+        .nav__inner {
+            max-width: 1360px; margin: 0 auto;
             padding: 0 2rem;
+            display: flex; align-items: center; gap: 2rem;
+            height: 64px;
+        }
+
+        .nav__logo {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 200;
+            font-size: 1.35rem;
+            color: var(--ink);
+            text-decoration: none;
+            letter-spacing: .05em;
+            white-space: nowrap;
+            display: flex; align-items: center; gap: .6rem;
+        }
+
+        .nav__logo-kanji {
+            font-size: 1.6rem;
+            color: var(--red);
+        }
+
+        .nav__links {
+            display: flex; align-items: center; gap: .2rem;
+            list-style: none;
+            flex: 1; justify-content: center;
+        }
+
+        .nav__link {
+            font-size: .85rem;
+            font-weight: 400;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: rgba(26,18,8,.6);
+            text-decoration: none;
+            padding: .4rem .9rem;
+            border-radius: var(--r);
+            transition: color .2s, background .2s;
+        }
+
+        .nav__link:hover { color: var(--ink); background: var(--mist); }
+        .nav__link--active { color: var(--red); }
+
+        .nav__actions {
+            display: flex; align-items: center; gap: .75rem;
+        }
+
+        .btn { 
+            display: inline-flex; align-items: center; gap: .4rem;
+            padding: .55rem 1.4rem;
+            border-radius: 2px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .82rem;
+            font-weight: 500;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: all .25s;
+            white-space: nowrap;
+        }
+
+        .btn--primary {
+            background: var(--red);
+            color: #fff;
+        }
+        .btn--primary:hover { background: var(--red-dim); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(192,57,43,.3); }
+
+        .btn--ghost {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid rgba(26,18,8,.2);
+        }
+        .btn--ghost:hover { border-color: var(--ink); background: var(--mist); }
+
+        .btn--gold {
+            background: var(--gold);
+            color: #fff;
+        }
+        .btn--gold:hover { background: #b8922e; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(201,168,76,.35); }
+
+        /* Hamburger */
+        .nav__burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+        .nav__burger span { width: 22px; height: 2px; background: var(--ink); border-radius: 2px; transition: .3s; }
+
+        /* ══════════════════════════════
+           FLASH
+        ══════════════════════════════ */
+        .flashes {
+            position: fixed; top: 72px; right: 1.5rem;
+            z-index: 9000;
+            display: flex; flex-direction: column; gap: .5rem;
+            pointer-events: none;
         }
 
         .flash {
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            animation: slideInRight 0.5s ease;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            box-shadow: 0 4px 15px var(--shadow);
+            pointer-events: all;
+            padding: .85rem 1.4rem;
+            border-radius: var(--r);
+            font-size: .85rem;
+            font-weight: 500;
+            letter-spacing: .02em;
+            display: flex; align-items: center; gap: .75rem;
+            box-shadow: 0 8px 32px var(--shadow);
+            animation: slideFlash .35s cubic-bezier(.16,1,.3,1) both;
+            max-width: 340px;
         }
 
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+        @keyframes slideFlash {
+            from { opacity: 0; transform: translateX(30px); }
+            to   { opacity: 1; transform: translateX(0); }
         }
 
-        .flash.success {
-            background: #d4edda;
-            color: #155724;
-            border-left: 4px solid #28a745;
-        }
+        .flash--success { background: #ecfdf5; color: #065f46; border-left: 3px solid #10b981; }
+        .flash--error   { background: #fef2f2; color: #991b1b; border-left: 3px solid var(--red); }
+        .flash--warning { background: #fffbeb; color: #92400e; border-left: 3px solid var(--gold); }
+        .flash--info    { background: #eff6ff; color: #1e40af; border-left: 3px solid #3b82f6; }
 
-        .flash.error {
-            background: #f8d7da;
-            color: #721c24;
-            border-left: 4px solid #dc3545;
-        }
-
-        .flash.warning {
-            background: #fff3cd;
-            color: #856404;
-            border-left: 4px solid #ffc107;
-        }
-
-        .flash.info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border-left: 4px solid #17a2b8;
-        }
-
-        /* Main Content */
-        .container {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Footer */
-        .footer {
-            background: var(--secondary);
-            color: var(--white);
-            padding: 3rem 2rem 1rem;
-            margin-top: 4rem;
-        }
-
-        .footer-container {
-            max-width: 1400px;
+        /* ══════════════════════════════
+           MAIN / CONTAINER
+        ══════════════════════════════ */
+        .wrap {
+            max-width: 1360px;
             margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
+            padding: 2.5rem 2rem 4rem;
         }
 
-        .footer-section h3 {
-            font-family: 'Noto Serif JP', serif;
-            color: var(--accent);
+        /* ══════════════════════════════
+           FORM PRIMITIVES (global)
+        ══════════════════════════════ */
+        .field { display: flex; flex-direction: column; gap: .4rem; }
+        .field label {
+            font-size: .78rem;
+            font-weight: 500;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: rgba(26,18,8,.55);
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            width: 100%;
+            padding: .8rem 1rem;
+            background: #fff;
+            border: 1px solid rgba(26,18,8,.15);
+            border-radius: var(--r);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .95rem;
+            color: var(--ink);
+            transition: border-color .2s, box-shadow .2s;
+            appearance: none;
+        }
+
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            outline: none;
+            border-color: var(--red);
+            box-shadow: 0 0 0 3px rgba(192,57,43,.1);
+        }
+
+        .field textarea { min-height: 100px; resize: vertical; }
+
+        .field .error { font-size: .78rem; color: var(--red); margin-top: .15rem; }
+
+        /* ══════════════════════════════
+           STATUS BADGES
+        ══════════════════════════════ */
+        .badge {
+            display: inline-flex; align-items: center;
+            padding: .25rem .75rem;
+            border-radius: 50px;
+            font-size: .75rem;
+            font-weight: 500;
+            letter-spacing: .04em;
+        }
+
+        .badge--new        { background: #fef3c7; color: #92400e; }
+        .badge--cooking    { background: #dbeafe; color: #1e40af; }
+        .badge--ready      { background: #d1fae5; color: #065f46; }
+        .badge--delivered  { background: #dcfce7; color: #166534; }
+        .badge--cancelled  { background: #fee2e2; color: #991b1b; }
+        .badge--pending    { background: #fef3c7; color: #92400e; }
+        .badge--paid       { background: #d1fae5; color: #065f46; }
+        .badge--failed     { background: #fee2e2; color: #991b1b; }
+        .badge--active     { background: #d1fae5; color: #065f46; }
+        .badge--deleted    { background: #fee2e2; color: #991b1b; }
+        .badge--admin      { background: #fef3c7; color: #92400e; }
+        .badge--user       { background: #e0e7ff; color: #3730a3; }
+
+        /* ══════════════════════════════
+           DIVIDER / ORNAMENT
+        ══════════════════════════════ */
+        .ornament {
+            display: flex; align-items: center; gap: 1rem;
+            color: var(--gold); font-size: .9rem;
+            margin: 2rem 0;
+        }
+        .ornament::before, .ornament::after {
+            content: '';
+            flex: 1; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        /* ══════════════════════════════
+           PAGE HERO
+        ══════════════════════════════ */
+        .hero {
+            position: relative;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 3rem;
+        }
+
+        .hero__bg {
+            position: absolute; inset: 0;
+            background-size: cover; background-position: center;
+        }
+        .hero__bg::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(26,18,8,.72), rgba(26,18,8,.45));
+        }
+
+        .hero__content {
+            position: relative; z-index: 2;
+            padding: 5rem 3.5rem;
+            color: #fff;
+        }
+
+        .hero__eyebrow {
+            font-size: .72rem;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: .75rem;
+        }
+
+        .hero__title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.4rem, 5vw, 4.2rem);
+            font-weight: 300;
+            line-height: 1.15;
             margin-bottom: 1rem;
         }
 
-        .footer-section p,
-        .footer-section a {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            display: block;
-            margin-bottom: 0.5rem;
-            transition: color 0.3s ease;
+        .hero__sub {
+            font-size: 1rem;
+            color: rgba(255,255,255,.75);
+            max-width: 520px;
+            line-height: 1.6;
         }
 
-        .footer-section a:hover {
-            color: var(--accent);
+        /* ══════════════════════════════
+           CARD
+        ══════════════════════════════ */
+        .card {
+            background: #fff;
+            border-radius: 6px;
+            border: 1px solid rgba(26,18,8,.08);
+            overflow: hidden;
         }
 
-        .footer-bottom {
-            text-align: center;
-            padding-top: 2rem;
-            margin-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.6);
+        /* ══════════════════════════════
+           FOOTER
+        ══════════════════════════════ */
+        .footer {
+            background: var(--ink);
+            color: rgba(255,255,255,.65);
+            padding: 4rem 2rem 2rem;
+            font-size: .85rem;
         }
 
-        /* Decorative Elements */
-        .sakura {
-            position: fixed;
-            top: -10px;
-            animation: fall linear infinite;
-            pointer-events: none;
-            z-index: 9999;
-            opacity: 0.6;
+        .footer__inner {
+            max-width: 1360px; margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .footer__brand {
+            font-family: 'Noto Serif JP', serif;
+            font-weight: 200;
             font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: .75rem;
         }
 
-        @keyframes fall {
-            to {
-                transform: translateY(100vh) rotate(360deg);
-            }
+        .footer__brand span { color: var(--red); }
+
+        .footer h4 {
+            font-size: .7rem;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 1.2rem;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .menu-toggle {
-                display: flex;
-            }
-
-            .nav-menu {
-                position: fixed;
-                left: -100%;
-                top: 70px;
-                flex-direction: column;
-                background: var(--white);
-                width: 100%;
-                text-align: center;
-                transition: 0.3s;
-                box-shadow: 0 10px 27px var(--shadow);
-                padding: 2rem 0;
-            }
-
-            .nav-menu.active {
-                left: 0;
-            }
-
-            .navbar-container {
-                padding: 1rem;
-            }
-
-            .container {
-                padding: 0 1rem;
-            }
+        .footer p, .footer a {
+            display: block;
+            margin-bottom: .5rem;
+            color: rgba(255,255,255,.55);
+            text-decoration: none;
+            transition: color .2s;
         }
 
-        /* Loading Animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--white);
-            animation: spin 1s ease-in-out infinite;
+        .footer a:hover { color: rgba(255,255,255,.9); }
+
+        .footer__bottom {
+            max-width: 1360px; margin: 3rem auto 0;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,.08);
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: .75rem; color: rgba(255,255,255,.3);
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        /* ══════════════════════════════
+           SCROLLBAR
+        ══════════════════════════════ */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--silk); }
+        ::-webkit-scrollbar-thumb { background: rgba(26,18,8,.25); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(26,18,8,.4); }
+
+        /* ══════════════════════════════
+           SAKURA (subtle)
+        ══════════════════════════════ */
+        .petal {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9997;
+            opacity: 0;
+            font-size: 1rem;
+            animation: petalFall linear forwards;
+        }
+
+        @keyframes petalFall {
+            0%   { opacity: 0; transform: translateY(-10px) rotate(0deg); }
+            10%  { opacity: .35; }
+            90%  { opacity: .2; }
+            100% { opacity: 0; transform: translateY(102vh) rotate(480deg); }
+        }
+
+        /* ══════════════════════════════
+           RESPONSIVE
+        ══════════════════════════════ */
+        @media (max-width: 900px) {
+            .nav__links { display: none; }
+            .nav__links.open {
+                display: flex; flex-direction: column;
+                position: fixed; top: 64px; left: 0; right: 0;
+                background: var(--paper);
+                border-bottom: 1px solid rgba(26,18,8,.1);
+                padding: 1.5rem 2rem;
+                gap: .25rem;
+                z-index: 899;
+            }
+            .nav__burger { display: flex; }
+            .footer__inner { grid-template-columns: 1fr 1fr; gap: 2rem; }
+            .hero__content { padding: 3rem 1.5rem; }
+            .wrap { padding: 1.5rem 1rem 3rem; }
+        }
+
+        @media (max-width: 520px) {
+            .footer__inner { grid-template-columns: 1fr; }
+            .footer__bottom { flex-direction: column; gap: .5rem; text-align: center; }
         }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Sakura Petals -->
-    <script>
-        function createSakura() {
-            const sakura = document.createElement('div');
-            sakura.classList.add('sakura');
-            sakura.innerHTML = '🌸';
-            sakura.style.left = Math.random() * 100 + 'vw';
-            sakura.style.animationDuration = Math.random() * 3 + 5 + 's';
-            sakura.style.opacity = Math.random() * 0.5 + 0.3;
-            document.body.appendChild(sakura);
-            setTimeout(() => sakura.remove(), 8000);
-        }
-        setInterval(createSakura, 2000);
-    </script>
 
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="navbar-container">
-            <a href="{{ url_for('home') }}" class="logo">
-                <span>桜レストラン</span>
-            </a>
-            
-            <div class="menu-toggle" onclick="toggleMenu()">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
+<!-- Petals -->
+<div id="petals" aria-hidden="true"></div>
 
-            <ul class="nav-menu" id="navMenu">
-                <li><a href="{{ url_for('home') }}" class="nav-link">Головна</a></li>
-                <li><a href="{{ url_for('menu') }}" class="nav-link">Меню</a></li>
-                {% if current_user.is_authenticated %}
-                    <li><a href="{{ url_for('cart') }}" class="nav-link">Кошик 🛒</a></li>
-                    <li><a href="{{ url_for('profile') }}" class="nav-link">Профіль</a></li>
-                    <li><a href="{{ url_for('book') }}" class="nav-link">Бронювання</a></li>
-                    {% if current_user.is_admin %}
-                        <li><a href="{{ url_for('admin_dashboard') }}" class="nav-link">Адмін</a></li>
-                    {% endif %}
-                    <li><a href="{{ url_for('logout') }}" class="btn-primary">Вийти</a></li>
-                {% else %}
-                    <li><a href="{{ url_for('login') }}" class="nav-link">Вхід</a></li>
-                    <li><a href="{{ url_for('register') }}" class="btn-primary">Реєстрація</a></li>
+<!-- Nav -->
+<nav class="nav" id="nav">
+    <div class="nav__inner">
+        <a href="{{ url_for('main.home') }}" class="nav__logo">
+            <span class="nav__logo-kanji">桜</span> Sakura
+        </a>
+
+        <ul class="nav__links" id="navLinks">
+            <li><a href="{{ url_for('main.home') }}" class="nav__link">Головна</a></li>
+            <li><a href="{{ url_for('main.menu') }}" class="nav__link">Меню</a></li>
+            <li><a href="{{ url_for('main.book') }}" class="nav__link">Резерв</a></li>
+            <li><a href="{{ url_for('main.details') }}" class="nav__link">Про нас</a></li>
+            {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('main.cart') }}" class="nav__link">Кошик</a></li>
+                <li><a href="{{ url_for('main.profile') }}" class="nav__link">Профіль</a></li>
+                {% if current_user.is_admin %}
+                    <li><a href="{{ url_for('main.admin_dashboard') }}" class="nav__link nav__link--active">Адмін</a></li>
                 {% endif %}
-            </ul>
+            {% endif %}
+        </ul>
+
+        <div class="nav__actions">
+            {% if current_user.is_authenticated %}
+                <form action="{{ url_for('main.logout') }}" method="POST" style="margin:0">
+                    {{ logout_csrf() if logout_csrf is defined else '' }}
+                    <button type="submit" class="btn btn--ghost">Вихід</button>
+                </form>
+            {% else %}
+                <a href="{{ url_for('main.login') }}" class="btn btn--ghost">Вхід</a>
+                <a href="{{ url_for('main.register') }}" class="btn btn--primary">Реєстрація</a>
+            {% endif %}
         </div>
-    </nav>
 
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="flash-messages">
-                {% for category, message in messages %}
-                    <div class="flash {{ category }}">
-                        <span>{{ message }}</span>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
+        <button class="nav__burger" id="burger" aria-label="Меню" onclick="toggleNav()">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</nav>
 
-    <!-- Main Content -->
-    <main class="container">
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flashes" id="flashes">
+        {% for cat, msg in messages %}
+        <div class="flash flash--{{ cat }}">
+            {% if cat == 'success' %}✓{% elif cat == 'error' %}✕{% elif cat == 'warning' %}⚠{% else %}i{% endif %}
+            <span>{{ msg }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endwith %}
+
+<!-- Content -->
+<main>
+    <div class="wrap">
         {% block content %}{% endblock %}
-    </main>
+    </div>
+</main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-section">
-                <h3>桜レストラン</h3>
-                <p>Автентична японська кухня у серці міста</p>
-            </div>
-            <div class="footer-section">
-                <h3>Контакти</h3>
-                <p>📞 +380 11 222 33 44</p>
-                <p>📧 info@sakura-restaurant.ua</p>
-                <p>📍 вул. Чорновола, 23</p>
-            </div>
-            <div class="footer-section">
-                <h3>Години роботи</h3>
-                <p>Пн-Пт: 11:00 - 23:00</p>
-                <p>Сб-Нд: 12:00 - 00:00</p>
-            </div>
-            <div class="footer-section">
-                <h3>Соціальні мережі</h3>
-                <a href="https://instagram.com">Instagram</a>
-                <a href="https://facebook.com">Facebook</a>
-                <a href="https://tiktok.com">TikTok</a>
-            </div>
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer__inner">
+        <div>
+            <div class="footer__brand"><span>桜</span> Sakura</div>
+            <p>Автентична японська кухня<br>в серці Черкас з 2018 року.</p>
         </div>
-        <div class="footer-bottom">
-            <p>&copy; 2025 桜レストラン. Всі права захищені.</p>
+        <div>
+            <h4>Меню</h4>
+            <a href="{{ url_for('main.menu') }}">Всі страви</a>
+            <a href="{{ url_for('main.book') }}">Бронювання</a>
+            <a href="{{ url_for('main.details') }}">Про ресторан</a>
         </div>
-    </footer>
+        <div>
+            <h4>Контакти</h4>
+            <p>+380 11 222 33 44</p>
+            <p>вул. Чорновола, 23</p>
+            <p>Чт–Вт: 12:00–23:00</p>
+        </div>
+        <div>
+            <h4>Соцмережі</h4>
+            <a href="#">Instagram</a>
+            <a href="#">Facebook</a>
+            <a href="#">TikTok</a>
+        </div>
+    </div>
+    <div class="footer__bottom">
+        <span>© 2025 桜 Sakura Restaurant</span>
+        <span>Черкаси, Україна</span>
+    </div>
+</footer>
 
-    <script>
-        function toggleMenu() {
-            const navMenu = document.getElementById('navMenu');
-            navMenu.classList.toggle('active');
-        }
+<script>
+// Nav toggle
+function toggleNav() {
+    document.getElementById('navLinks').classList.toggle('open');
+}
+document.addEventListener('click', e => {
+    if (!e.target.closest('.nav')) {
+        document.getElementById('navLinks').classList.remove('open');
+    }
+});
 
-        // Close menu when clicking outside
-        document.addEventListener('click', function(event) {
-            const navMenu = document.getElementById('navMenu');
-            const menuToggle = document.querySelector('.menu-toggle');
-            
-            if (!navMenu.contains(event.target) && !menuToggle.contains(event.target)) {
-                navMenu.classList.remove('active');
-            }
-        });
+// Auto-dismiss flashes
+setTimeout(() => {
+    document.querySelectorAll('.flash').forEach(f => {
+        f.style.transition = 'opacity .4s, transform .4s';
+        f.style.opacity = '0';
+        f.style.transform = 'translateX(30px)';
+        setTimeout(() => f.remove(), 400);
+    });
+}, 4500);
 
-        // Auto-hide flash messages
-        setTimeout(() => {
-            const flashes = document.querySelectorAll('.flash');
-            flashes.forEach(flash => {
-                flash.style.animation = 'slideInRight 0.5s ease reverse';
-                setTimeout(() => flash.remove(), 500);
-            });
-        }, 5000);
-    </script>
-    {% block extra_js %}{% endblock %}
+// Petals
+(function() {
+    const symbols = ['🌸','✿','❀'];
+    function petal() {
+        const el = document.createElement('span');
+        el.className = 'petal';
+        el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.fontSize = (.6 + Math.random() * .6) + 'rem';
+        el.style.animationDuration = (6 + Math.random() * 6) + 's';
+        document.getElementById('petals').appendChild(el);
+        setTimeout(() => el.remove(), 12000);
+    }
+    setInterval(petal, 3500);
+    setTimeout(petal, 800);
+})();
+</script>
+
+{% block extra_js %}{% endblock %}
 </body>
 </html>

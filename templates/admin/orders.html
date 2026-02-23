@@ -1,316 +1,116 @@
 {% extends "base.html" %}
-
-{% block title %}Замовлення - Адмін{% endblock %}
+{% block title %}Замовлення — Адмін{% endblock %}
 
 {% block extra_css %}
 <style>
-    .admin-container {
-        max-width: 1400px;
-        margin: 2rem auto;
-        animation: fadeIn 1s ease;
-    }
+.admin-nav { display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:2.5rem;padding-bottom:1.5rem;border-bottom:1px solid rgba(26,18,8,.08); }
+.admin-nav a { padding:.5rem 1.25rem;border-radius:2px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(26,18,8,.15);color:rgba(26,18,8,.55);transition:all .2s; }
+.admin-nav a:hover { border-color:var(--ink);color:var(--ink); }
+.admin-nav a.active { background:var(--ink);color:#fff;border-color:var(--ink); }
 
-    .admin-header {
-        background: linear-gradient(135deg, var(--primary), #b01f24);
-        color: white;
-        padding: 2rem 3rem;
-        border-radius: 25px;
-        margin-bottom: 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
+.page-head { display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2.5rem;flex-wrap:wrap;gap:1rem; }
+.page-head__eyebrow { font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem; }
+.page-head__title { font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:300; }
 
-    .admin-header h1 {
-        font-family: 'Noto Serif JP', serif;
-        font-size: 2.5rem;
-    }
+.order-card { background:#fff;border:1px solid rgba(26,18,8,.07);border-radius:6px;padding:1.75rem;margin-bottom:1px; }
+.order-card:first-child { border-radius:6px 6px 0 0; }
+.order-card:last-child { border-radius:0 0 6px 6px; }
+.order-card:only-child { border-radius:6px; }
+.order-card + .order-card { border-top:none; }
+.order-card:hover { background:var(--paper); }
 
-    .back-link {
-        color: white;
-        text-decoration: none;
-        padding: 0.8rem 1.5rem;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 50px;
-        transition: all 0.3s ease;
-    }
+.oc-head { display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(26,18,8,.06); }
+.oc-num { font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400; }
+.oc-user { font-size:.83rem;color:rgba(26,18,8,.45);flex:1; }
+.oc-badges { display:flex;gap:.5rem;flex-wrap:wrap; }
 
-    .back-link:hover {
-        background: white;
-        color: var(--primary);
-    }
+.oc-details { display:flex;flex-wrap:wrap;gap:.75rem 2rem;margin-bottom:1.25rem;font-size:.85rem;color:rgba(26,18,8,.55); }
 
-    .orders-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
+.oc-items { list-style:none;border-top:1px solid rgba(26,18,8,.05);padding-top:.75rem;margin-bottom:1rem; }
+.oc-items li { display:flex;justify-content:space-between;padding:.3rem 0;font-size:.85rem;color:rgba(26,18,8,.6); }
 
-    .order-card {
-        background: white;
-        padding: 2rem;
-        border-radius: 20px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-        animation: slideInLeft 0.5s ease;
-        transition: all 0.3s ease;
-    }
+.oc-footer { display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem; }
+.oc-total { font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300; }
 
-    .order-card:hover {
-        transform: translateX(10px);
-        box-shadow: 0 10px 30px rgba(212, 40, 45, 0.15);
-    }
+.status-form { display:flex;gap:.5rem;align-items:center; }
+.status-form select {
+    padding:.45rem .9rem;border:1px solid rgba(26,18,8,.15);border-radius:2px;
+    font-size:.8rem;letter-spacing:.04em;cursor:pointer;
+    font-family:'DM Sans',sans-serif;color:var(--ink);background:#fff;
+    transition:border-color .2s;
+}
+.status-form select:focus { outline:none;border-color:var(--ink); }
 
-    .order-header {
-        display: grid;
-        grid-template-columns: auto 1fr auto auto;
-        gap: 2rem;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1.5rem;
-        border-bottom: 2px solid #f0f0f0;
-    }
-
-    .order-number {
-        font-family: 'Noto Serif JP', serif;
-        font-size: 1.5rem;
-        color: var(--primary);
-        font-weight: 700;
-    }
-
-    .order-user {
-        color: #666;
-    }
-
-    .order-status-badge {
-        padding: 0.6rem 1.2rem;
-        border-radius: 50px;
-        font-weight: 600;
-        font-size: 0.9rem;
-    }
-
-    .status-new { background: #fef3c7; color: #92400e; }
-    .status-cooking { background: #dbeafe; color: #1e40af; }
-    .status-ready { background: #d1fae5; color: #065f46; }
-    .status-delivered { background: #dcfce7; color: #166534; }
-    .status-cancelled { background: #fee2e2; color: #991b1b; }
-
-    .payment-pending { background: #fef3c7; color: #92400e; }
-    .payment-paid { background: #d1fae5; color: #065f46; }
-    .payment-failed { background: #fee2e2; color: #991b1b; }
-
-    .order-details {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .detail-item {
-        padding: 1rem;
-        background: #f9f9f9;
-        border-radius: 10px;
-    }
-
-    .detail-label {
-        font-size: 0.85rem;
-        color: #999;
-        text-transform: uppercase;
-        margin-bottom: 0.3rem;
-    }
-
-    .detail-value {
-        font-weight: 600;
-        color: var(--text);
-    }
-
-    .order-items {
-        background: #f9f9f9;
-        padding: 1.5rem;
-        border-radius: 15px;
-        margin-bottom: 1.5rem;
-    }
-
-    .order-items h4 {
-        color: var(--primary);
-        margin-bottom: 1rem;
-    }
-
-    .item-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.5rem 0;
-        border-bottom: 1px solid #e0e0e0;
-    }
-
-    .item-row:last-child {
-        border-bottom: none;
-    }
-
-    .order-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 1rem;
-        border-top: 2px solid #f0f0f0;
-    }
-
-    .order-total {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: var(--accent);
-    }
-
-    .status-form {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-    }
-
-    .status-select {
-        padding: 0.8rem 1.5rem;
-        border: 2px solid var(--primary);
-        border-radius: 50px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .status-select:focus {
-        outline: none;
-        box-shadow: 0 0 0 4px rgba(212, 40, 45, 0.1);
-    }
-
-    .update-btn {
-        padding: 0.8rem 2rem;
-        background: var(--primary);
-        color: white;
-        border: none;
-        border-radius: 50px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .update-btn:hover {
-        background: #b01f24;
-        transform: translateY(-2px);
-    }
-
-    @media (max-width: 768px) {
-        .admin-header {
-            flex-direction: column;
-            text-align: center;
-            gap: 1rem;
-        }
-
-        .order-header {
-            grid-template-columns: 1fr;
-            text-align: center;
-        }
-
-        .order-details {
-            grid-template-columns: 1fr;
-        }
-
-        .order-footer {
-            flex-direction: column;
-            gap: 1rem;
-        }
-    }
+.empty-state { text-align:center;padding:5rem 2rem; }
+.empty-state h2 { font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;margin-bottom:.5rem; }
+.empty-state p { color:rgba(26,18,8,.45); }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="admin-container">
-    <div class="admin-header">
-        <h1>📦 Замовлення</h1>
-        <a href="{{ url_for('admin_dashboard') }}" class="back-link">← Назад</a>
-    </div>
+<nav class="admin-nav">
+    <a href="{{ url_for('main.admin_dashboard') }}">Дашборд</a>
+    <a href="{{ url_for('main.admin_orders') }}" class="active">Замовлення</a>
+    <a href="{{ url_for('main.admin_products') }}">Товари</a>
+    <a href="{{ url_for('main.admin_users') }}">Користувачі</a>
+    <a href="{{ url_for('main.admin_tables') }}">Столики</a>
+</nav>
 
-    <div class="orders-list">
-        {% for order in orders %}
-        <div class="order-card">
-            <div class="order-header">
-                <div class="order-number">#{{ order.id }}</div>
-                <div class="order-user">
-                    👤 {{ order.user.email }}
-                </div>
-                <span class="order-status-badge status-{{ order.status.value }}">
-                    {{ order.status.value }}
-                </span>
-                <span class="order-status-badge payment-{{ order.payment_status.value }}">
-                    💳 {{ order.payment_status.value }}
-                </span>
-            </div>
-
-            <div class="order-details">
-                <div class="detail-item">
-                    <div class="detail-label">Дата замовлення</div>
-                    <div class="detail-value">{{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
-                </div>
-
-                <div class="detail-item">
-                    <div class="detail-label">Тип замовлення</div>
-                    <div class="detail-value">
-                        {% if order.order_type.value == 'delivery' %}
-                            🚚 Доставка
-                        {% elif order.order_type.value == 'takeaway' %}
-                            🏃 Самовивіз
-                        {% else %}
-                            🍽️ В ресторані
-                        {% endif %}
-                    </div>
-                </div>
-
-                {% if order.phone %}
-                <div class="detail-item">
-                    <div class="detail-label">Телефон</div>
-                    <div class="detail-value">{{ order.phone }}</div>
-                </div>
-                {% endif %}
-
-                {% if order.delivery_address %}
-                <div class="detail-item">
-                    <div class="detail-label">Адреса доставки</div>
-                    <div class="detail-value">{{ order.delivery_address }}</div>
-                </div>
-                {% endif %}
-            </div>
-
-            <div class="order-items">
-                <h4>Товари в замовленні:</h4>
-                {% for item in order.items %}
-                <div class="item-row">
-                    <span>{{ item.product_name }} × {{ item.quantity }}</span>
-                    <span>{{ item.price * item.quantity }} ₴</span>
-                </div>
-                {% endfor %}
-            </div>
-
-            <div class="order-footer">
-                <div class="order-total">Всього: {{ order.total }} ₴</div>
-                
-                <form action="{{ url_for('admin_change_order_status', order_id=order.id) }}" method="POST" class="status-form">
-                    <select name="status" class="status-select">
-                        <option value="new" {% if order.status.value == 'new' %}selected{% endif %}>Нове</option>
-                        <option value="cooking" {% if order.status.value == 'cooking' %}selected{% endif %}>Готується</option>
-                        <option value="ready" {% if order.status.value == 'ready' %}selected{% endif %}>Готово</option>
-                        <option value="delivered" {% if order.status.value == 'delivered' %}selected{% endif %}>Доставлено</option>
-                        <option value="cancelled" {% if order.status.value == 'cancelled' %}selected{% endif %}>Скасовано</option>
-                    </select>
-                    <button type="submit" class="update-btn">Оновити</button>
-                </form>
-            </div>
-        </div>
-        {% endfor %}
-
-        {% if not orders %}
-        <div style="text-align: center; padding: 4rem 2rem;">
-            <div style="font-size: 5rem; margin-bottom: 1rem;">📦</div>
-            <h2>Замовлень поки немає</h2>
-            <p>Коли з'являться нові замовлення, вони будуть тут</p>
-        </div>
-        {% endif %}
+<div class="page-head">
+    <div>
+        <div class="page-head__eyebrow">Адміністрування</div>
+        <h1 class="page-head__title">Замовлення</h1>
     </div>
 </div>
+
+{% if orders %}
+<div>
+    {% for o in orders %}
+    <div class="order-card">
+        <div class="oc-head">
+            <span class="oc-num">#{{ o.id }}</span>
+            <span class="oc-user">{{ o.user.email }}</span>
+            <div class="oc-badges">
+                <span class="badge badge--{{ o.status.value }}">{{ o.status.value }}</span>
+                <span class="badge badge--{{ o.payment_status.value }}">{{ o.payment_status.value }}</span>
+            </div>
+        </div>
+
+        <div class="oc-details">
+            <span>📅 {{ o.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+            <span>📦 {{ {'delivery':'Доставка','takeaway':'Самовивіз','dine_in':'В ресторані'}[o.order_type.value] }}</span>
+            {% if o.phone %}<span>📞 {{ o.phone }}</span>{% endif %}
+            {% if o.delivery_address %}<span>📍 {{ o.delivery_address }}</span>{% endif %}
+        </div>
+
+        <ul class="oc-items">
+            {% for item in o.items %}
+            <li>
+                <span>{{ item.product_name }} × {{ item.quantity }}</span>
+                <span>{{ "%.2f"|format(item.price * item.quantity) }} ₴</span>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <div class="oc-footer">
+            <span class="oc-total">{{ o.total }} ₴</span>
+            <form action="{{ url_for('main.admin_change_order_status', order_id=o.id) }}" method="POST" class="status-form">
+                {{ status_forms[o.id].hidden_tag() }}
+                <select name="status">
+                    {% for val, label in [('new','Нове'),('cooking','Готується'),('ready','Готово'),('delivered','Доставлено'),('cancelled','Скасовано')] %}
+                    <option value="{{ val }}" {{ 'selected' if o.status.value == val }}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn--primary" style="padding:.45rem 1rem;font-size:.78rem">Зберегти</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <h2>Замовлень поки немає</h2>
+    <p>Нові замовлення з'являться тут</p>
+</div>
+{% endif %}
 {% endblock %}

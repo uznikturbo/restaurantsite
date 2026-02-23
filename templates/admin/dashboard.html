@@ -1,238 +1,128 @@
 {% extends "base.html" %}
-
-{% block title %}Адмін Панель - 桜レストラン{% endblock %}
+{% block title %}Адмін — 桜 Sakura{% endblock %}
 
 {% block extra_css %}
 <style>
-    .admin-container {
-        max-width: 1400px;
-        margin: 2rem auto;
-        animation: fadeIn 1s ease;
-    }
+.admin-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;
+}
+.admin-header__eyebrow { font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem; }
+.admin-header__title { font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:300; }
 
-    .admin-header {
-        background: linear-gradient(135deg, var(--primary), #b01f24);
-        color: white;
-        padding: 3rem;
-        border-radius: 25px;
-        margin-bottom: 3rem;
-        text-align: center;
-        animation: slideDown 0.8s ease;
-    }
+.admin-nav {
+    display: flex; gap: .5rem; flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(26,18,8,.08);
+}
+.admin-nav a {
+    padding: .5rem 1.25rem;
+    border-radius: 2px;
+    font-size: .78rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid rgba(26,18,8,.15);
+    color: rgba(26,18,8,.55);
+    transition: all .2s;
+}
+.admin-nav a:hover { border-color:var(--ink);color:var(--ink); }
+.admin-nav a.active { background:var(--ink);color:#fff;border-color:var(--ink); }
 
-    .admin-header h1 {
-        font-family: 'Noto Serif JP', serif;
-        font-size: 3rem;
-        margin-bottom: 0.5rem;
-    }
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: rgba(26,18,8,.08);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 2.5rem;
+}
 
-    .admin-nav {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 3rem;
-        flex-wrap: wrap;
-    }
+.stat {
+    background: #fff;
+    padding: 2.5rem;
+    transition: background .2s;
+}
+.stat:hover { background: var(--paper); }
+.stat__num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 4rem;
+    font-weight: 300;
+    line-height: 1;
+    color: var(--ink);
+    margin-bottom: .25rem;
+}
+.stat__label { font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(26,18,8,.4); }
 
-    .admin-nav-btn {
-        flex: 1;
-        min-width: 200px;
-        padding: 1rem 2rem;
-        background: white;
-        color: var(--text);
-        border: 2px solid var(--primary);
-        border-radius: 15px;
-        text-decoration: none;
-        font-weight: 600;
-        text-align: center;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-    }
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: rgba(26,18,8,.08);
+    border-radius: 6px;
+    overflow: hidden;
+}
+.action-link {
+    background: #fff;
+    padding: 1.75rem 2rem;
+    text-decoration: none;
+    color: var(--ink);
+    display: flex; align-items: center; gap: 1rem;
+    transition: background .2s;
+}
+.action-link:hover { background: var(--paper); }
+.action-link__icon { font-size: 1.5rem; }
+.action-link__text { font-size: .88rem; font-weight: 500; }
 
-    .admin-nav-btn:hover,
-    .admin-nav-btn.active {
-        background: var(--primary);
-        color: white;
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(212, 40, 45, 0.3);
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 2rem;
-        margin-bottom: 3rem;
-    }
-
-    .stat-card {
-        background: white;
-        padding: 2.5rem;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        text-align: center;
-        transition: all 0.3s ease;
-        animation: fadeInUp 0.6s ease;
-        animation-fill-mode: both;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .stat-card:nth-child(1) { animation-delay: 0.1s; }
-    .stat-card:nth-child(2) { animation-delay: 0.2s; }
-    .stat-card:nth-child(3) { animation-delay: 0.3s; }
-
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 5px;
-        background: linear-gradient(90deg, var(--primary), var(--accent));
-    }
-
-    .stat-card:hover {
-        transform: translateY(-10px) scale(1.02);
-        box-shadow: 0 15px 40px rgba(212, 40, 45, 0.2);
-    }
-
-    .stat-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-        animation: bounce 2s infinite;
-    }
-
-    .stat-value {
-        font-size: 3rem;
-        font-weight: 700;
-        color: var(--primary);
-        margin-bottom: 0.5rem;
-    }
-
-    .stat-label {
-        font-size: 1.1rem;
-        color: #666;
-        font-weight: 500;
-    }
-
-    .quick-actions {
-        background: white;
-        padding: 2rem;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        animation: fadeIn 1s ease;
-    }
-
-    .quick-actions h2 {
-        font-family: 'Noto Serif JP', serif;
-        color: var(--primary);
-        margin-bottom: 1.5rem;
-    }
-
-    .action-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
-    }
-
-    .action-btn {
-        padding: 1.5rem;
-        background: linear-gradient(135deg, #f9f9f9, #f0f0f0);
-        border: 2px solid #e0e0e0;
-        border-radius: 15px;
-        text-decoration: none;
-        color: var(--text);
-        font-weight: 600;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .action-btn:hover {
-        background: var(--primary);
-        color: white;
-        border-color: var(--primary);
-        transform: translateX(10px);
-    }
-
-    .action-icon {
-        font-size: 2rem;
-    }
-
-    @media (max-width: 768px) {
-        .admin-header h1 {
-            font-size: 2rem;
-        }
-
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .admin-nav {
-            flex-direction: column;
-        }
-
-        .admin-nav-btn {
-            min-width: 100%;
-        }
-    }
+@media (max-width:700px) { .stats-grid,.actions-grid { grid-template-columns:1fr; } }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="admin-container">
-    <div class="admin-header">
-        <h1>⚙️ Адміністративна Панель</h1>
-        <p>Керування рестораном 桜レストラン</p>
+<div class="admin-header">
+    <div>
+        <div class="admin-header__eyebrow">Адміністрування</div>
+        <h1 class="admin-header__title">Панель керування</h1>
     </div>
+</div>
 
-    <div class="admin-nav">
-        <a href="{{ url_for('admin_dashboard') }}" class="admin-nav-btn active">📊 Дашборд</a>
-        <a href="{{ url_for('admin_orders') }}" class="admin-nav-btn">📦 Замовлення</a>
-        <a href="{{ url_for('admin_products') }}" class="admin-nav-btn">🍱 Товари</a>
-        <a href="{{ url_for('admin_users') }}" class="admin-nav-btn">👥 Користувачі</a>
-        <a href="{{ url_for('admin_tables') }}" class="admin-nav-btn">Столики</a>
+<nav class="admin-nav">
+    <a href="{{ url_for('main.admin_dashboard') }}" class="active">Дашборд</a>
+    <a href="{{ url_for('main.admin_orders') }}">Замовлення</a>
+    <a href="{{ url_for('main.admin_products') }}">Товари</a>
+    <a href="{{ url_for('main.admin_users') }}">Користувачі</a>
+    <a href="{{ url_for('main.admin_tables') }}">Столики</a>
+</nav>
+
+<div class="stats-grid">
+    <div class="stat">
+        <div class="stat__num">{{ orders_count }}</div>
+        <div class="stat__label">Замовлень</div>
     </div>
-
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon">📦</div>
-            <div class="stat-value">{{ orders_count }}</div>
-            <div class="stat-label">Всього замовлень</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon">👥</div>
-            <div class="stat-value">{{ users_count }}</div>
-            <div class="stat-label">Користувачів</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon">🍱</div>
-            <div class="stat-value">{{ products_count }}</div>
-            <div class="stat-label">Активних товарів</div>
-        </div>
+    <div class="stat">
+        <div class="stat__num">{{ users_count }}</div>
+        <div class="stat__label">Користувачів</div>
     </div>
-
-    <div class="quick-actions">
-        <h2>🚀 Швидкі дії</h2>
-        <div class="action-grid">
-            <a href="{{ url_for('admin_orders') }}" class="action-btn">
-                <span class="action-icon">📦</span>
-                <span>Переглянути нові замовлення</span>
-            </a>
-            <a href="{{ url_for('admin_products') }}" class="action-btn">
-                <span class="action-icon">➕</span>
-                <span>Додати новий товар</span>
-            </a>
-            <a href="{{ url_for('admin_users') }}" class="action-btn">
-                <span class="action-icon">👥</span>
-                <span>Керувати користувачами</span>
-            </a>
-        </div>
+    <div class="stat">
+        <div class="stat__num">{{ products_count }}</div>
+        <div class="stat__label">Товарів</div>
     </div>
+</div>
+
+<div class="actions-grid">
+    <a href="{{ url_for('main.admin_orders') }}" class="action-link">
+        <span class="action-link__icon">📦</span>
+        <span class="action-link__text">Нові замовлення</span>
+    </a>
+    <a href="{{ url_for('main.admin_products') }}" class="action-link">
+        <span class="action-link__icon">🍱</span>
+        <span class="action-link__text">Додати товар</span>
+    </a>
+    <a href="{{ url_for('main.admin_users') }}" class="action-link">
+        <span class="action-link__icon">👥</span>
+        <span class="action-link__text">Керувати користувачами</span>
+    </a>
 </div>
 {% endblock %}

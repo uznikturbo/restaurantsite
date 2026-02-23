@@ -1,376 +1,184 @@
 {% extends "base.html" %}
-
-{% block title %}Профіль - 桜レストラン{% endblock %}
+{% block title %}Профіль — 桜 Sakura{% endblock %}
 
 {% block extra_css %}
 <style>
-    .profile-container {
-        max-width: 1200px;
-        margin: 2rem auto;
-        animation: fadeIn 1s ease;
-    }
+.profile-header {
+    display: flex; align-items: center; gap: 2rem;
+    padding: 2.5rem;
+    background: #fff;
+    border: 1px solid rgba(26,18,8,.07);
+    border-radius: 6px;
+    margin-bottom: 2.5rem;
+}
+.profile-avatar {
+    width: 72px; height: 72px;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 300;
+    flex-shrink: 0;
+}
+.profile-info__name { font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;margin-bottom:.2rem; }
+.profile-info__email { font-size:.85rem;color:rgba(26,18,8,.45); }
 
-    .profile-header {
-        background: linear-gradient(135deg, var(--primary), #b01f24);
-        color: white;
-        padding: 3rem;
-        border-radius: 25px;
-        text-align: center;
-        margin-bottom: 2rem;
-        animation: slideDown 0.8s ease;
-    }
+/* Tabs */
+.tabs { display:flex;gap:0;border-bottom:1px solid rgba(26,18,8,.1);margin-bottom:2rem; }
+.tab-btn {
+    padding:.75rem 1.75rem;
+    background:none;border:none;cursor:pointer;
+    font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;
+    color:rgba(26,18,8,.45);
+    border-bottom:2px solid transparent;
+    margin-bottom:-1px;
+    transition:all .2s;
+}
+.tab-btn.active { color:var(--ink);border-bottom-color:var(--ink); }
+.tab-btn:hover:not(.active) { color:var(--ink); }
 
-    .profile-avatar {
-        width: 120px;
-        height: 120px;
-        background: white;
-        color: var(--primary);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 4rem;
-        margin: 0 auto 1rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
 
-    .profile-name {
-        font-family: 'Noto Serif JP', serif;
-        font-size: 2.5rem;
-        margin-bottom: 0.5rem;
-    }
+/* Order cards */
+.order-card {
+    background:#fff;
+    border:1px solid rgba(26,18,8,.07);
+    border-radius:6px;
+    padding:1.75rem;
+    margin-bottom:1rem;
+}
+.order-card__head {
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:1.25rem;padding-bottom:1.25rem;
+    border-bottom:1px solid rgba(26,18,8,.06);
+    flex-wrap:wrap;gap:.75rem;
+}
+.order-card__num { font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400; }
+.order-card__badges { display:flex;gap:.5rem;flex-wrap:wrap; }
 
-    .profile-email {
-        font-size: 1.1rem;
-        opacity: 0.9;
-    }
+.order-meta { font-size:.85rem;color:rgba(26,18,8,.5);margin-bottom:1rem;display:flex;flex-wrap:wrap;gap:1rem; }
+.order-meta span::before { margin-right:.3rem; }
 
-    .profile-tabs {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
+.order-items-list { list-style:none;border-top:1px solid rgba(26,18,8,.06);padding-top:.75rem;margin-top:.75rem; }
+.order-items-list li {
+    display:flex;justify-content:space-between;
+    padding:.35rem 0;font-size:.88rem;
+    color:rgba(26,18,8,.65);
+    border-bottom:1px solid rgba(26,18,8,.04);
+}
+.order-items-list li:last-child { border:none; }
 
-    .tab-btn {
-        flex: 1;
-        padding: 1rem 2rem;
-        background: white;
-        color: var(--text);
-        border: 2px solid var(--primary);
-        border-radius: 15px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
+.order-total { text-align:right;font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;margin-top:.75rem;color:var(--ink); }
 
-    .tab-btn.active {
-        background: var(--primary);
-        color: white;
-    }
+/* Reservation */
+.res-card {
+    background:#fff;border:1px solid rgba(26,18,8,.07);border-radius:6px;
+    padding:1.5rem;margin-bottom:.75rem;
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;
+}
+.res-card__info { display:flex;flex-direction:column;gap:.25rem; }
+.res-card__title { font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:400; }
+.res-card__sub { font-size:.83rem;color:rgba(26,18,8,.45); }
 
-    .tab-btn:hover:not(.active) {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(212, 40, 45, 0.2);
-    }
-
-    .tab-content {
-        display: none;
-    }
-
-    .tab-content.active {
-        display: block;
-        animation: fadeIn 0.5s ease;
-    }
-
-    .orders-list, .reservations-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-
-    .order-card, .reservation-card {
-        background: white;
-        padding: 2rem;
-        border-radius: 20px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-        animation: slideUp 0.5s ease;
-        transition: all 0.3s ease;
-    }
-
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .order-card:hover, .reservation-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(212, 40, 45, 0.15);
-    }
-
-    .order-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #f0f0f0;
-    }
-
-    .order-number {
-        font-family: 'Noto Serif JP', serif;
-        font-size: 1.5rem;
-        color: var(--primary);
-    }
-
-    .order-status {
-        padding: 0.5rem 1rem;
-        border-radius: 50px;
-        font-weight: 600;
-        font-size: 0.9rem;
-    }
-
-    .status-new {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .status-cooking {
-        background: #dbeafe;
-        color: #1e40af;
-    }
-
-    .status-ready {
-        background: #d1fae5;
-        color: #065f46;
-    }
-
-    .status-delivered {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .status-cancelled {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .payment-status {
-        padding: 0.5rem 1rem;
-        border-radius: 50px;
-        font-weight: 600;
-        font-size: 0.9rem;
-    }
-
-    .payment-pending {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .payment-paid {
-        background: #d1fae5;
-        color: #065f46;
-    }
-
-    .payment-failed {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .order-details {
-        margin-top: 1rem;
-    }
-
-    .order-items {
-        list-style: none;
-        margin: 1rem 0;
-    }
-
-    .order-item {
-        padding: 0.5rem 0;
-        display: flex;
-        justify-content: space-between;
-    }
-
-    .order-total {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: var(--accent);
-        text-align: right;
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 2px solid #f0f0f0;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        background: white;
-        border-radius: 20px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .empty-state-icon {
-        font-size: 5rem;
-        margin-bottom: 1rem;
-        animation: bounce 2s infinite;
-    }
-
-    @keyframes bounce {
-        0%, 100% {
-            transform: translateY(0);
-        }
-        50% {
-            transform: translateY(-20px);
-        }
-    }
-
-    .empty-state h2 {
-        font-family: 'Noto Serif JP', serif;
-        color: var(--primary);
-        margin-bottom: 1rem;
-    }
-
-    .empty-state p {
-        color: #666;
-        margin-bottom: 2rem;
-    }
-
-    @media (max-width: 768px) {
-        .profile-tabs {
-            flex-direction: column;
-        }
-
-        .order-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-
-        .profile-header {
-            padding: 2rem;
-        }
-
-        .profile-name {
-            font-size: 2rem;
-        }
-
-        .order-card, .reservation-card {
-            padding: 1.5rem;
-        }
-    }
+/* Empty */
+.empty-tab { text-align:center;padding:4rem 2rem; }
+.empty-tab h3 { font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;margin-bottom:.5rem; }
+.empty-tab p { font-size:.9rem;color:rgba(26,18,8,.45);margin-bottom:1.5rem; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="profile-container">
-    <div class="profile-header">
-        <div class="profile-avatar">👤</div>
-        <h1 class="profile-name">{{ user.username or 'Користувач' }}</h1>
-        <p class="profile-email">{{ user.email }}</p>
-    </div>
-
-    <div class="profile-tabs">
-        <button class="tab-btn active" onclick="switchTab('orders')">📦 Мої замовлення</button>
-        <button class="tab-btn" onclick="switchTab('reservations')">📅 Мої бронювання</button>
-    </div>
-
-    <div id="orders-tab" class="tab-content active">
-        <div class="orders-list">
-            {% if orders %}
-                {% for order in orders %}
-                <div class="order-card">
-                    <div class="order-header">
-                        <span class="order-number">Замовлення #{{ order.id }}</span>
-                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                            <span class="order-status status-{{ order.status.value }}">
-                                {{ order.status.value }}
-                            </span>
-                            <span class="payment-status payment-{{ order.payment_status.value }}">
-                                💳 {{ order.payment_status.value }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="order-details">
-                        <p><strong>📅 Дата:</strong> {{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
-                        <p><strong>📍 Тип:</strong> {{ order.order_type.value }}</p>
-                        {% if order.delivery_address %}
-                        <p><strong>🏠 Адреса:</strong> {{ order.delivery_address }}</p>
-                        {% endif %}
-                        {% if order.phone %}
-                        <p><strong>📞 Телефон:</strong> {{ order.phone }}</p>
-                        {% endif %}
-
-                        <ul class="order-items">
-                            {% for item in order.items %}
-                            <li class="order-item">
-                                <span>{{ item.product_name }} × {{ item.quantity }}</span>
-                                <span>{{ item.price * item.quantity }} ₴</span>
-                            </li>
-                            {% endfor %}
-                        </ul>
-
-                        <div class="order-total">Всього: {{ order.total }} ₴</div>
-                    </div>
-                </div>
-                {% endfor %}
-            {% else %}
-                <div class="empty-state">
-                    <div class="empty-state-icon">📦</div>
-                    <h2>У вас ще немає замовлень</h2>
-                    <p>Перейдіть до меню та оберіть смачні страви!</p>
-                    <a href="{{ url_for('menu') }}" class="btn-primary" style="margin-top: 1rem; display: inline-block; padding: 1rem 2rem; text-decoration: none;">
-                        До меню
-                    </a>
-                </div>
-            {% endif %}
-        </div>
-    </div>
-
-    <div id="reservations-tab" class="tab-content">
-        <div class="reservations-list">
-            {% if reservations %}
-                {% for reservation in reservations %}
-                <div class="reservation-card">
-                    <div class="order-header">
-                        <span class="order-number">Бронювання #{{ reservation.id }}</span>
-                        <span class="order-status status-{{ reservation.status }}">{{ reservation.status }}</span>
-                    </div>
-                    <div class="order-details">
-                        <p><strong>📅 Дата:</strong> {{ reservation.reserved_at }}</p>
-                        <p><strong>👥 Гостей:</strong> {{ reservation.guests }}</p>
-                        {% if reservation.table %}
-                        <p><strong>🪑 Столик:</strong> №{{ reservation.table.number }} ({{ reservation.table.seats }} місць)</p>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-            {% else %}
-                <div class="empty-state">
-                    <div class="empty-state-icon">📅</div>
-                    <h2>У вас ще немає бронювань</h2>
-                    <p>Забронюйте столик у нашому ресторані!</p>
-                </div>
-            {% endif %}
-        </div>
+<div class="profile-header">
+    <div class="profile-avatar">{{ user.email[0].upper() }}</div>
+    <div class="profile-info">
+        <div class="profile-info__name">{{ user.username or 'Гість' }}</div>
+        <div class="profile-info__email">{{ user.email }}</div>
     </div>
 </div>
 
-<script>
-function switchTab(tab) {
-    // Update buttons
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
+<div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('orders', this)">Замовлення</button>
+    <button class="tab-btn" onclick="switchTab('reservations', this)">Бронювання</button>
+</div>
 
-    // Update content
-    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-    document.getElementById(tab + '-tab').classList.add('active');
+<!-- Orders -->
+<div class="tab-panel active" id="orders">
+    {% if orders %}
+        {% for o in orders %}
+        <div class="order-card">
+            <div class="order-card__head">
+                <span class="order-card__num">Замовлення #{{ o.id }}</span>
+                <div class="order-card__badges">
+                    <span class="badge badge--{{ o.status.value }}">{{ o.status.value }}</span>
+                    <span class="badge badge--{{ o.payment_status.value }}">{{ o.payment_status.value }}</span>
+                </div>
+            </div>
+            <div class="order-meta">
+                <span>📅 {{ o.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                <span>📦 {{ {'delivery':'Доставка','takeaway':'Самовивіз','dine_in':'В ресторані'}[o.order_type.value] }}</span>
+                {% if o.delivery_address %}<span>📍 {{ o.delivery_address }}</span>{% endif %}
+                {% if o.phone %}<span>📞 {{ o.phone }}</span>{% endif %}
+            </div>
+            <ul class="order-items-list">
+                {% for item in o.items %}
+                <li>
+                    <span>{{ item.product_name }} × {{ item.quantity }}</span>
+                    <span>{{ "%.2f"|format(item.price * item.quantity) }} ₴</span>
+                </li>
+                {% endfor %}
+            </ul>
+            <div class="order-total">{{ o.total }} ₴</div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="empty-tab">
+        <h3>Ще немає замовлень</h3>
+        <p>Перейдіть до меню та оберіть улюблені страви</p>
+        <a href="{{ url_for('main.menu') }}" class="btn btn--primary">Відкрити меню</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Reservations -->
+<div class="tab-panel" id="reservations">
+    {% if reservations %}
+        {% for r in reservations %}
+        <div class="res-card">
+            <div class="res-card__info">
+                <div class="res-card__title">
+                    {% if r.table %}Столик №{{ r.table.number }}{% else %}Столик{% endif %}
+                </div>
+                <div class="res-card__sub">
+                    {{ r.reserved_at.strftime('%d.%m.%Y о %H:%M') }} · {{ r.guests }} гостей
+                    {% if r.phone %} · {{ r.phone }}{% endif %}
+                </div>
+                {% if r.comment %}
+                <div class="res-card__sub" style="margin-top:.2rem;font-style:italic;">{{ r.comment }}</div>
+                {% endif %}
+            </div>
+            <span class="badge badge--{{ r.status }}">{{ r.status }}</span>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="empty-tab">
+        <h3>Ще немає бронювань</h3>
+        <p>Забронюйте столик для особливого вечора</p>
+        <a href="{{ url_for('main.book') }}" class="btn btn--primary">Забронювати стіл</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function switchTab(name, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(name).classList.add('active');
 }
 </script>
 {% endblock %}

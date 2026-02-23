@@ -1,344 +1,304 @@
 {% extends "base.html" %}
-
-{% block title %}Головна - 桜レストラン{% endblock %}
+{% block title %}桜 Sakura — Японський Ресторан, Черкаси{% endblock %}
 
 {% block extra_css %}
 <style>
-    .hero {
-        position: relative;
-        height: 600px;
-        background: linear-gradient(135deg, rgba(212, 40, 45, 0.9), rgba(26, 26, 26, 0.8)),
-                    url('https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=1600') center/cover;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        color: white;
-        border-radius: 20px;
-        overflow: hidden;
-        margin-bottom: 4rem;
-        animation: fadeIn 1s ease;
-    }
+/* ── HERO ── */
+.home-hero {
+    position: relative;
+    height: clamp(480px, 75vh, 720px);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 5rem;
+}
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: scale(0.95); }
-        to { opacity: 1; transform: scale(1); }
-    }
+.home-hero__bg {
+    position: absolute; inset: 0;
+    background: url('https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=1600') center/cover;
+}
 
-    .hero-content {
-        z-index: 2;
-        padding: 2rem;
-        animation: slideUp 1s ease;
-    }
+.home-hero__bg::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(26,18,8,.82) 0%, rgba(26,18,8,.4) 55%, rgba(192,57,43,.25) 100%);
+}
 
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateY(50px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
+.home-hero__content {
+    position: relative; z-index: 2;
+    height: 100%;
+    display: flex; flex-direction: column;
+    justify-content: center;
+    padding: 4rem 4.5rem;
+    color: #fff;
+}
 
-    .hero h1 {
-        font-family: 'Noto Serif JP', serif;
-        font-size: 4rem;
-        margin-bottom: 1rem;
-        text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
-        animation: glow 2s ease-in-out infinite;
-    }
+.home-hero__kana {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 200;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    line-height: 1;
+    letter-spacing: .05em;
+    color: rgba(255,255,255,.12);
+    position: absolute;
+    right: 3rem; bottom: 2rem;
+    pointer-events: none;
+}
 
-    @keyframes glow {
-        0%, 100% { text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5); }
-        50% { text-shadow: 2px 2px 20px rgba(244, 196, 48, 0.8); }
-    }
+.home-hero__eyebrow {
+    font-size: .72rem;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.2rem;
+    animation: fadeUp .8s .1s both;
+}
 
-    .hero p {
-        font-size: 1.5rem;
-        margin-bottom: 2rem;
-        opacity: 0.95;
-    }
+.home-hero__title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.6rem, 5.5vw, 5rem);
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+    animation: fadeUp .8s .25s both;
+}
 
-    .hero-buttons {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
+.home-hero__sub {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,.72);
+    max-width: 440px;
+    margin-bottom: 2.5rem;
+    animation: fadeUp .8s .4s both;
+    line-height: 1.7;
+}
 
-    .hero-btn {
-        padding: 1rem 2.5rem;
-        font-size: 1.1rem;
-        border-radius: 50px;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        display: inline-block;
-        position: relative;
-        overflow: hidden;
-    }
+.home-hero__btns {
+    display: flex; gap: 1rem; flex-wrap: wrap;
+    animation: fadeUp .8s .55s both;
+}
 
-    .hero-btn::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.2);
-        transform: translate(-50%, -50%);
-        transition: width 0.5s, height 0.5s;
-    }
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
 
-    .hero-btn:hover::before {
-        width: 300px;
-        height: 300px;
-    }
+/* ── FEATURES ── */
+.features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5px;
+    background: rgba(26,18,8,.08);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 5rem;
+}
 
-    .btn-light {
-        background: white;
-        color: var(--primary);
-        box-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
-    }
+.feature {
+    background: var(--paper);
+    padding: 2.5rem;
+    transition: background .25s;
+}
 
-    .btn-light:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 30px rgba(255, 255, 255, 0.5);
-    }
+.feature:hover { background: #fff; }
 
-    .btn-outline {
-        background: transparent;
-        color: white;
-        border: 2px solid white;
-    }
+.feature__num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3.5rem;
+    font-weight: 300;
+    color: rgba(26,18,8,.06);
+    line-height: 1;
+    margin-bottom: .5rem;
+}
 
-    .btn-outline:hover {
-        background: white;
-        color: var(--primary);
-        transform: translateY(-3px);
-    }
+.feature__icon { font-size: 1.6rem; margin-bottom: 1rem; }
 
-    /* Features Section */
-    .features {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 2rem;
-        margin: 4rem 0;
-    }
+.feature__title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.35rem;
+    font-weight: 400;
+    margin-bottom: .5rem;
+    color: var(--ink);
+}
 
-    .feature-card {
-        background: white;
-        padding: 2.5rem;
-        border-radius: 20px;
-        text-align: center;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        animation: fadeInUp 0.6s ease;
-        animation-fill-mode: both;
-    }
+.feature__text {
+    font-size: .88rem;
+    color: rgba(26,18,8,.55);
+    line-height: 1.65;
+}
 
-    .feature-card:nth-child(1) { animation-delay: 0.1s; }
-    .feature-card:nth-child(2) { animation-delay: 0.2s; }
-    .feature-card:nth-child(3) { animation-delay: 0.3s; }
+/* ── SECTION LABEL ── */
+.section-label {
+    font-size: .7rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: .75rem;
+}
 
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
+.section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 300;
+    color: var(--ink);
+    margin-bottom: 2.5rem;
+    line-height: 1.2;
+}
 
-    .feature-card:hover {
-        transform: translateY(-10px) rotate(2deg);
-        box-shadow: 0 15px 40px rgba(212, 40, 45, 0.2);
-    }
+/* ── DISHES ── */
+.dishes { margin-bottom: 5rem; }
 
-    .feature-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-        display: inline-block;
-        animation: bounce 2s infinite;
-    }
+.dishes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: rgba(26,18,8,.08);
+    border-radius: 6px;
+    overflow: hidden;
+}
 
-    .feature-card h3 {
-        font-family: 'Noto Serif JP', serif;
-        color: var(--primary);
-        margin-bottom: 1rem;
-        font-size: 1.5rem;
-    }
+.dish {
+    background: #fff;
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 3/4;
+    cursor: pointer;
+}
 
-    .feature-card p {
-        color: #666;
-        line-height: 1.6;
-    }
+.dish img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform .6s cubic-bezier(.16,1,.3,1);
+}
 
-    /* Popular Dishes */
-    .section-title {
-        text-align: center;
-        font-family: 'Noto Serif JP', serif;
-        font-size: 3rem;
-        color: var(--primary);
-        margin: 4rem 0 2rem;
-        position: relative;
-        animation: fadeIn 1s ease;
-    }
+.dish:hover img { transform: scale(1.06); }
 
-    .section-title::after {
-        content: '';
-        display: block;
-        width: 100px;
-        height: 4px;
-        background: var(--accent);
-        margin: 1rem auto;
-        border-radius: 2px;
-    }
+.dish__overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(26,18,8,.85) 0%, transparent 50%);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 1.75rem;
+    color: #fff;
+    transition: background .3s;
+}
 
-    .dishes-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        margin-bottom: 4rem;
-    }
+.dish:hover .dish__overlay {
+    background: linear-gradient(to top, rgba(26,18,8,.9) 0%, rgba(26,18,8,.2) 50%);
+}
 
-    .dish-card {
-        background: white;
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        animation: fadeInUp 0.6s ease;
-        animation-fill-mode: both;
-    }
+.dish__name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 300;
+    margin-bottom: .25rem;
+}
 
-    .dish-card:nth-child(1) { animation-delay: 0.1s; }
-    .dish-card:nth-child(2) { animation-delay: 0.2s; }
-    .dish-card:nth-child(3) { animation-delay: 0.3s; }
+.dish__price {
+    font-size: .85rem;
+    color: var(--gold);
+    letter-spacing: .04em;
+}
 
-    .dish-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 40px rgba(212, 40, 45, 0.2);
-    }
+/* ── CTA ── */
+.cta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(26,18,8,.08);
+    margin-bottom: 5rem;
+}
 
-    .dish-image {
-        width: 100%;
-        height: 250px;
-        object-fit: cover;
-        transition: transform 0.5s ease;
-    }
+.cta__block {
+    padding: 4rem;
+    background: var(--ink);
+    color: #fff;
+}
 
-    .dish-card:hover .dish-image {
-        transform: scale(1.1);
-    }
+.cta__block:nth-child(2) { background: var(--red); }
 
-    .dish-content {
-        padding: 1.5rem;
-    }
+.cta__eyebrow {
+    font-size: .7rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.5);
+    margin-bottom: .75rem;
+}
 
-    .dish-content h3 {
-        font-family: 'Noto Serif JP', serif;
-        color: var(--primary);
-        margin-bottom: 0.5rem;
-        font-size: 1.5rem;
-    }
+.cta__title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.4rem;
+    font-weight: 300;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+}
 
-    .dish-content p {
-        color: #666;
-        margin-bottom: 1rem;
-        line-height: 1.6;
-    }
+.cta__text {
+    font-size: .9rem;
+    color: rgba(255,255,255,.65);
+    margin-bottom: 2rem;
+    max-width: 340px;
+    line-height: 1.7;
+}
 
-    .dish-price {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--accent);
-    }
-
-    /* CTA Section */
-    .cta-section {
-        background: linear-gradient(135deg, var(--primary), #b01f24);
-        color: white;
-        padding: 4rem 2rem;
-        border-radius: 20px;
-        text-align: center;
-        margin: 4rem 0;
-        animation: fadeIn 1s ease;
-    }
-
-    .cta-section h2 {
-        font-family: 'Noto Serif JP', serif;
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .cta-section p {
-        font-size: 1.2rem;
-        margin-bottom: 2rem;
-        opacity: 0.95;
-    }
-
-    @media (max-width: 768px) {
-        .hero h1 {
-            font-size: 2.5rem;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-        }
-
-        .section-title {
-            font-size: 2rem;
-        }
-
-        .features {
-            grid-template-columns: 1fr;
-        }
-    }
+@media (max-width: 900px) {
+    .features, .dishes-grid { grid-template-columns: 1fr; }
+    .cta { grid-template-columns: 1fr; }
+    .home-hero__content { padding: 2.5rem 2rem; }
+    .home-hero__kana { display: none; }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-    <!-- Hero Section -->
-    <div class="hero">
-        <div class="hero-content">
-            <h1>桜レストラン</h1>
-            <p>Відкрийте для себе справжню японську кухню</p>
-            <div class="hero-buttons">
-                <a href="{{ url_for('menu') }}" class="hero-btn btn-light">Переглянути меню</a>
-                <a href="{{ url_for('details') }}" class="hero-btn btn-outline">Дізнатись більше</a>
-            </div>
+<!-- Hero -->
+<section class="home-hero">
+    <div class="home-hero__bg"></div>
+    <div class="home-hero__kana">桜</div>
+    <div class="home-hero__content">
+        <div class="home-hero__eyebrow">Японський ресторан · Черкаси · З 2018</div>
+        <h1 class="home-hero__title">Мистецтво<br>смаку</h1>
+        <p class="home-hero__sub">Відкрийте для себе автентичну японську кухню, де кожна страва — це баланс традиції та сезонної свіжості.</p>
+        <div class="home-hero__btns">
+            <a href="{{ url_for('main.menu') }}" class="btn btn--primary">Переглянути меню</a>
+            <a href="{{ url_for('main.book') }}" class="btn btn--ghost" style="color:#fff;border-color:rgba(255,255,255,.4)">Забронювати стіл</a>
         </div>
     </div>
+</section>
 
-    <!-- Features Section -->
-    <div class="features" id="features">
-        <div class="feature-card">
-            <div class="feature-icon">🍣</div>
-            <h3>Свіжі інгредієнти</h3>
-            <p>Ми використовуємо тільки найсвіжіші продукти, доставлені щодня</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">👨‍🍳</div>
-            <h3>Досвідчені шеф-кухарі</h3>
-            <p>Наші майстри навчалися у Японії та володіють традиційними техніками</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">🚚</div>
-            <h3>Швидка доставка</h3>
-            <p>Доставимо ваше замовлення гарячим протягом 30-40 хвилин</p>
-        </div>
+<!-- Features -->
+<section class="features">
+    <div class="feature">
+        <div class="feature__num">01</div>
+        <div class="feature__icon">🐟</div>
+        <div class="feature__title">Свіжість щодня</div>
+        <p class="feature__text">Риба та морепродукти надходять тричі на тиждень. Жодних компромісів.</p>
     </div>
-
-    <!-- CTA Section -->
-    <div class="cta-section">
-        <h2>Готові замовити?</h2>
-        <p>Оформіть замовлення зараз і отримайте знижку 10% на перше замовлення!</p>
-        <a href="{{ url_for('menu') }}" class="hero-btn btn-light">Замовити зараз</a>
+    <div class="feature">
+        <div class="feature__num">02</div>
+        <div class="feature__icon">🍵</div>
+        <div class="feature__title">Традиція</div>
+        <p class="feature__text">Рецепти, перевірені поколіннями, адаптовані до найкращих місцевих продуктів.</p>
     </div>
+    <div class="feature">
+        <div class="feature__num">03</div>
+        <div class="feature__icon">🚚</div>
+        <div class="feature__title">Доставка</div>
+        <p class="feature__text">Привеземо гарячу страву до 45 хвилин. Або самовивіз — на ваш розсуд.</p>
+    </div>
+</section>
+<!-- CTA -->
+<section class="cta">
+    <div class="cta__block">
+        <div class="cta__eyebrow">Замовлення онлайн</div>
+        <div class="cta__title">Смачне — прямо зараз</div>
+        <p class="cta__text">Оформте замовлення і отримайте його гарячим протягом 30–45 хвилин.</p>
+        <a href="{{ url_for('main.menu') }}" class="btn btn--gold">Замовити зараз</a>
+    </div>
+    <div class="cta__block">
+        <div class="cta__eyebrow">Резервування столика</div>
+        <div class="cta__title">Вечір у Сакурі</div>
+        <p class="cta__text">Забронюйте ідеальний столик для романтичної вечері або сімейного свята.</p>
+        <a href="{{ url_for('main.book') }}" class="btn btn--ghost" style="color:#fff;border-color:rgba(255,255,255,.4)">Забронювати</a>
+    </div>
+</section>
 {% endblock %}

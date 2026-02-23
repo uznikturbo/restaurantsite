@@ -1,286 +1,213 @@
 {% extends "base.html" %}
-
-{% block title %}{{ position.name }} - 桜レストラン{% endblock %}
+{% block title %}{{ position.name }} — 桜 Sakura{% endblock %}
 
 {% block extra_css %}
 <style>
-    .product-detail {
-        max-width: 1200px;
-        margin: 2rem auto;
-        background: white;
-        border-radius: 25px;
-        overflow: hidden;
-        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
-        animation: fadeIn 1s ease;
-    }
+.back { font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(26,18,8,.45);text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;margin-bottom:2rem; }
+.back:hover { color:var(--red); }
 
-    .product-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 3rem;
-        padding: 3rem;
-    }
+.position-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid rgba(26,18,8,.08);
+    background: #fff;
+}
 
-    .product-image-section {
-        animation: slideInLeft 0.8s ease;
-    }
+.position-img {
+    position: relative;
+    aspect-ratio: 1;
+}
+.position-img img {
+    width:100%;height:100%;object-fit:cover;
+    display: block;
+}
 
-    .product-main-image {
-        width: 100%;
-        height: 500px;
-        object-fit: cover;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
+.position-info {
+    padding: 3rem;
+    display: flex; flex-direction: column;
+}
 
-    .product-info-section {
-        animation: slideInRight 0.8s ease;
-    }
+.pos-badge {
+    display: inline-flex;
+    padding: .22rem .7rem;
+    border-radius: 2px;
+    font-size: .72rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+    align-self: flex-start;
+}
+.pos-badge--on { background: #ecfdf5; color: #065f46; }
+.pos-badge--off { background: #fef2f2; color: #991b1b; }
 
-    .product-badge {
-        display: inline-block;
-        padding: 0.5rem 1rem;
-        background: var(--accent);
-        color: var(--secondary);
-        border-radius: 50px;
-        font-weight: 600;
-        margin-bottom: 1rem;
-    }
+.pos-cat {
+    font-size: .72rem;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: .6rem;
+}
 
-    .product-title {
-        font-family: 'Noto Serif JP', serif;
-        font-size: 3rem;
-        color: var(--primary);
-        margin-bottom: 1rem;
-    }
+.pos-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: .75rem;
+}
 
-    .product-price {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: var(--accent);
-        margin-bottom: 2rem;
-    }
+.pos-rating {
+    display: flex; align-items: center; gap: .75rem;
+    margin-bottom: 1.5rem;
+}
+.pos-rating__stars { color: var(--gold); font-size: 1rem; letter-spacing: 2px; }
+.pos-rating__num { font-size:.85rem;color:rgba(26,18,8,.5); }
 
-    .product-description {
-        font-size: 1.1rem;
-        line-height: 1.8;
-        color: #666;
-        margin-bottom: 2rem;
-    }
+.pos-desc {
+    font-size: .95rem;
+    color: rgba(26,18,8,.6);
+    line-height: 1.75;
+    margin-bottom: 2rem;
+    flex: 1;
+}
 
-    .product-specs {
-        background: #f9f9f9;
-        padding: 1.5rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
-    }
+.pos-specs {
+    border-top: 1px solid rgba(26,18,8,.06);
+    padding-top: 1.5rem;
+    margin-bottom: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+}
+.pos-spec {}
+.pos-spec__label { font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(26,18,8,.35);margin-bottom:.2rem; }
+.pos-spec__val { font-size:.95rem;font-weight:500; }
 
-    .spec-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.8rem 0;
-        border-bottom: 1px solid #e0e0e0;
-    }
+.pos-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3rem;
+    font-weight: 300;
+    line-height: 1;
+    margin-bottom: 1.75rem;
+}
+.pos-price sup { font-size: 1.1rem; vertical-align: super; }
 
-    .spec-row:last-child {
-        border-bottom: none;
-    }
+.pos-actions { display: flex; gap: .75rem; flex-wrap: wrap; }
+.pos-actions .btn { flex: 1; justify-content: center; padding: .85rem; }
 
-    .spec-label {
-        font-weight: 600;
-        color: var(--text);
-    }
+/* Rating form */
+.rating-section {
+    border-top: 1px solid rgba(26,18,8,.06);
+    padding-top: 1.5rem;
+    margin-top: auto;
+}
+.rating-section__label { font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(26,18,8,.4);margin-bottom:.75rem; }
+.stars-form { display:flex;gap:.25rem; }
+.stars-form button {
+    background: none; border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: rgba(26,18,8,.15);
+    transition: color .15s;
+    padding: .1rem .2rem;
+}
+.stars-form button:hover,
+.stars-form button:hover ~ button { color: var(--gold); }
 
-    .spec-value {
-        color: #666;
-    }
-
-    .product-actions {
-        display: flex;
-        gap: 1rem;
-    }
-
-    .add-cart-btn {
-        flex: 1;
-        padding: 1.2rem 2rem;
-        background: var(--primary);
-        color: white;
-        border: none;
-        border-radius: 50px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(212, 40, 45, 0.3);
-    }
-
-    .add-cart-btn:hover {
-        background: #b01f24;
-        transform: translateY(-3px);
-        box-shadow: 0 6px 20px rgba(212, 40, 45, 0.4);
-    }
-
-    .back-btn {
-        padding: 1.2rem 2rem;
-        background: transparent;
-        color: var(--primary);
-        border: 2px solid var(--primary);
-        border-radius: 50px;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        display: inline-block;
-    }
-
-    .back-btn:hover {
-        background: var(--primary);
-        color: white;
-        transform: translateY(-3px);
-    }
-
-    @media (max-width: 968px) {
-        .product-grid {
-            grid-template-columns: 1fr;
-            padding: 2rem;
-        }
-
-        .product-main-image {
-            height: 300px;
-        }
-
-        .product-title {
-            font-size: 2rem;
-        }
-    }
-
-    .rating-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    }
-
-    .rating-form {
-        margin: 0;
-    }
-
-    .stars {
-        display: flex;
-        flex-direction: row-reverse;
-    }
-
-    .stars button {
-        background: none;
-        border: none;
-        font-size: 22px;
-        cursor: pointer;
-        color: #ccc;
-        padding: 0 2px;
-        transition: color 0.2s, transform 0.1s;
-    }
-
-    .stars button:hover,
-    .stars button:hover ~ button {
-        color: #f5b301;
-    }
-
-    .stars button:active {
-        transform: scale(0.9);
-    }
-
+@media (max-width: 780px) {
+    .position-grid { grid-template-columns: 1fr; }
+    .position-img { aspect-ratio: 16/9; }
+    .position-info { padding: 2rem; }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="product-detail">
-    <div class="product-grid">
-        <div class="product-image-section">
-            <img src="{{ position.image_url or 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=800' }}" 
-                 alt="{{ position.name }}" 
-                 class="product-main-image">
+<a href="{{ url_for('main.menu') }}" class="back">← Назад до меню</a>
+
+<div class="position-grid">
+    <div class="position-img">
+        <img src="{{ position.image_url or 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=900' }}"
+             alt="{{ position.name }}">
+    </div>
+
+    <div class="position-info">
+        {% if position.category %}
+        <div class="pos-cat">{{ position.category.name }}</div>
+        {% endif %}
+
+        <span class="pos-badge {{ 'pos-badge--on' if position.is_available else 'pos-badge--off' }}">
+            {{ 'Доступно' if position.is_available else 'Недоступно' }}
+        </span>
+
+        <h1 class="pos-name">{{ position.name }}</h1>
+
+        <div class="pos-rating">
+            <div class="pos-rating__stars">
+                {% set r = position.rating | float %}
+                {% for i in range(5) %}{{ '★' if i < r|round|int else '☆' }}{% endfor %}
+            </div>
+            <div class="pos-rating__num">{{ position.rating or '0.0' }} / 5</div>
         </div>
 
-        <div class="product-info-section">
-            {% if position.is_available %}
-            <span class="product-badge">✓ Доступно</span>
-            {% else %}
-            <span class="product-badge" style="background: #dc3545; color: white;">✗ Недоступно</span>
+        <p class="pos-desc">{{ position.description or 'Смачна страва японської кухні, приготована з найсвіжіших інгредієнтів нашими шеф-кухарями.' }}</p>
+
+        {% if position.weight or position.calories or position.cooking_time or position.ingredients %}
+        <div class="pos-specs">
+            {% if position.weight %}
+            <div class="pos-spec">
+                <div class="pos-spec__label">Вага</div>
+                <div class="pos-spec__val">{{ position.weight }} г</div>
+            </div>
             {% endif %}
-
-            <h1 class="product-title">{{ position.name }}</h1>
-            <div class="product-price">{{ position.price }} ₴</div>
-
-            <p class="product-description">
-                {{ position.description or 'Смачна японська страва, приготована нашими досвідченими шеф-кухарями з найсвіжіших інгредієнтів.' }}
-            </p>
-
-            <div class="product-specs">
-                <h3 style="margin-bottom: 1rem; color: var(--primary);">📋 Характеристики</h3>
-                <div class="spec-row rating-row">
-                    <span class="spec-label">Рейтинг:</span>
-                    <span class="spec-value">{{ position.rating or '0.0' }}</span>
-                    <form class="rating-form" action="{{ url_for('add_rating', id=position.id) }}" method="post">
-                        <div class="stars">
-                            {% for i in range(5, 0, -1) %}
-                                <button type="submit" name="rating" value="{{ i }}" aria-label="{{ i }} звезд">
-                                    ★
-                                </button>
-                            {% endfor %}
-                        </div>
-                    </form>
-                </div>
-
-
-
-                {% if position.weight %}
-                <div class="spec-row">
-                    <span class="spec-label">Вага:</span>
-                    <span class="spec-value">{{ position.weight }} г</span>
-                </div>
-                {% endif %}
-
-                {% if position.calories %}
-                <div class="spec-row">
-                    <span class="spec-label">Калорії:</span>
-                    <span class="spec-value">{{ position.calories }} ккал</span>
-                </div>
-                {% endif %}
-
-                {% if position.cooking_time %}
-                <div class="spec-row">
-                    <span class="spec-label">Час приготування:</span>
-                    <span class="spec-value">{{ position.cooking_time }} хв</span>
-                </div>
-                {% endif %}
-
-                {% if position.category %}
-                <div class="spec-row">
-                    <span class="spec-label">Категорія:</span>
-                    <span class="spec-value">{{ position.category.name }}</span>
-                </div>
-                {% endif %}
-
-                {% if position.ingredients %}
-                <div class="spec-row">
-                    <span class="spec-label">Інгредієнти:</span>
-                    <span class="spec-value">{{ position.ingredients }}</span>
-                </div>
-                {% endif %}
+            {% if position.calories %}
+            <div class="pos-spec">
+                <div class="pos-spec__label">Калорії</div>
+                <div class="pos-spec__val">{{ position.calories }} ккал</div>
             </div>
-
-            <div class="product-actions">
-                <a href="{{ url_for('menu') }}" class="back-btn">← Назад</a>
-                
-                {% if current_user.is_authenticated and position.is_available %}
-                <form action="{{ url_for('add_to_cart', product_id=position.id) }}" method="POST" style="flex: 1;">
-                    <button type="submit" class="add-cart-btn">🛒 Додати в кошик</button>
-                </form>
-                {% elif not current_user.is_authenticated %}
-                <a href="{{ url_for('login') }}" class="add-cart-btn" style="text-align: center; text-decoration: none;">
-                    🔐 Увійти щоб замовити
-                </a>
-                {% endif %}
+            {% endif %}
+            {% if position.cooking_time %}
+            <div class="pos-spec">
+                <div class="pos-spec__label">Час</div>
+                <div class="pos-spec__val">{{ position.cooking_time }} хв</div>
             </div>
+            {% endif %}
+            {% if position.ingredients %}
+            <div class="pos-spec" style="grid-column: 1 / -1;">
+                <div class="pos-spec__label">Інгредієнти</div>
+                <div class="pos-spec__val" style="font-weight:400;font-size:.88rem;color:rgba(26,18,8,.6)">{{ position.ingredients }}</div>
+            </div>
+            {% endif %}
         </div>
+        {% endif %}
+
+        <div class="pos-price">{{ position.price }}<sup>₴</sup></div>
+
+        <div class="pos-actions">
+            {% if current_user.is_authenticated and position.is_available %}
+            <form action="{{ url_for('main.add_to_cart', product_id=position.id) }}" method="POST" style="flex:1;margin:0">
+                {{ add_form.hidden_tag() }}
+                <button type="submit" class="btn btn--primary" style="width:100%">До кошика</button>
+            </form>
+            {% elif not current_user.is_authenticated %}
+            <a href="{{ url_for('main.login') }}" class="btn btn--primary">Увійти для замовлення</a>
+            {% endif %}
+        </div>
+
+        {% if current_user.is_authenticated %}
+        <div class="rating-section">
+            <div class="rating-section__label">Ваша оцінка</div>
+            <form action="{{ url_for('main.add_rating', product_id=position.id) }}" method="POST" class="stars-form">
+                {{ rating_form.hidden_tag() }}
+                {% for i in range(5, 0, -1) %}
+                <button type="submit" name="rating" value="{{ i }}" title="{{ i }} зірки">★</button>
+                {% endfor %}
+            </form>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

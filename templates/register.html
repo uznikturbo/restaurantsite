@@ -1,229 +1,86 @@
 {% extends "base.html" %}
-
-{% block title %}Реєстрація - 桜レストラン{% endblock %}
+{% block title %}Реєстрація — 桜 Sakura{% endblock %}
 
 {% block extra_css %}
 <style>
-    .auth-container {
-        max-width: 500px;
-        margin: 4rem auto;
-        animation: fadeIn 1s ease;
-    }
-
-    .auth-card {
-        background: white;
-        padding: 3rem;
-        border-radius: 25px;
-        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
-        animation: slideUp 0.8s ease;
-    }
-
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateY(50px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .auth-header {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-
-    .auth-header h1 {
-        font-family: 'Noto Serif JP', serif;
-        color: var(--primary);
-        font-size: 2.5rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .auth-header p {
-        color: #666;
-    }
-
-    .auth-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-        animation: bounce 2s infinite;
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-label {
-        display: block;
-        margin-bottom: 0.5rem;
-        color: var(--text);
-        font-weight: 500;
-    }
-
-    .form-input {
-        width: 100%;
-        padding: 1rem 1.5rem;
-        border: 2px solid #e0e0e0;
-        border-radius: 15px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        font-family: 'Noto Sans JP', sans-serif;
-    }
-
-    .form-input:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 4px rgba(212, 40, 45, 0.1);
-        transform: translateY(-2px);
-    }
-
-    .form-input:hover {
-        border-color: var(--primary);
-    }
-
-    .password-requirements {
-        margin-top: 0.5rem;
-        padding: 0.8rem;
-        background: #f9f9f9;
-        border-radius: 10px;
-        font-size: 0.85rem;
-        color: #666;
-    }
-
-    .password-requirements ul {
-        margin: 0.5rem 0 0 1.5rem;
-        padding: 0;
-    }
-
-    .submit-btn {
-        width: 100%;
-        padding: 1rem 2rem;
-        background: var(--primary);
-        color: white;
-        border: none;
-        border-radius: 50px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(212, 40, 45, 0.3);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .submit-btn::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.2);
-        transform: translate(-50%, -50%);
-        transition: width 0.5s, height 0.5s;
-    }
-
-    .submit-btn:hover::before {
-        width: 300px;
-        height: 300px;
-    }
-
-    .submit-btn:hover {
-        background: #b01f24;
-        transform: translateY(-3px);
-        box-shadow: 0 6px 20px rgba(212, 40, 45, 0.4);
-    }
-
-    .submit-btn:active {
-        transform: translateY(-1px);
-    }
-
-    .auth-footer {
-        text-align: center;
-        margin-top: 2rem;
-        padding-top: 2rem;
-        border-top: 1px solid #e0e0e0;
-    }
-
-    .auth-footer a {
-        color: var(--primary);
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .auth-footer a:hover {
-        color: #b01f24;
-        text-decoration: underline;
-    }
-
-    @media (max-width: 768px) {
-        .auth-container {
-            margin: 2rem auto;
-        }
-
-        .auth-card {
-            padding: 2rem;
-        }
-
-        .auth-header h1 {
-            font-size: 2rem;
-        }
-    }
+.auth-wrap {
+    min-height: calc(100vh - 64px);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin: -2.5rem -2rem;
+}
+.auth-visual {
+    position: relative;
+    background: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200') center/cover;
+    min-height: 500px;
+}
+.auth-visual::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(26,18,8,.75), rgba(192,57,43,.45));
+}
+.auth-visual__text {
+    position: relative; z-index: 2;
+    padding: 4rem; color: #fff;
+    height: 100%; display: flex; flex-direction: column; justify-content: flex-end;
+}
+.auth-visual__kana { font-family: 'Noto Serif JP', serif; font-weight: 200; font-size: 5rem; color: rgba(255,255,255,.15); line-height: 1; margin-bottom: 1.5rem; }
+.auth-visual__title { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 300; margin-bottom: .75rem; }
+.auth-visual__sub { font-size: .9rem; color: rgba(255,255,255,.65); }
+.auth-form-side { background: var(--paper); display: flex; align-items: center; justify-content: center; padding: 3rem 3.5rem; }
+.auth-form-box { width: 100%; max-width: 380px; }
+.auth-form-box__eyebrow { font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); margin-bottom: .5rem; }
+.auth-form-box__title { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 300; margin-bottom: .5rem; }
+.auth-form-box__sub { font-size: .9rem; color: rgba(26,18,8,.5); margin-bottom: 2.5rem; }
+.auth-form { display: flex; flex-direction: column; gap: 1.25rem; }
+.auth-form .btn { width: 100%; justify-content: center; padding: .85rem; }
+.auth-form__footer { margin-top: 1.5rem; text-align: center; font-size: .82rem; color: rgba(26,18,8,.5); }
+.auth-form__footer a { color: var(--red); text-decoration: none; font-weight: 500; }
+.auth-form__footer a:hover { text-decoration: underline; }
+@media (max-width: 780px) { .auth-wrap { grid-template-columns: 1fr; margin: -1.5rem -1rem; } .auth-visual { display: none; } .auth-form-side { padding: 2.5rem 1.5rem; } }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="auth-header">
-            <div class="auth-icon">🎌</div>
-            <h1>Реєстрація</h1>
-            <p>Створіть свій акаунт</p>
+<div class="auth-wrap">
+    <div class="auth-visual">
+        <div class="auth-visual__text">
+            <div class="auth-visual__kana">ようこそ</div>
+            <div class="auth-visual__title">Приєднуйтесь<br>до Сакури</div>
+            <p class="auth-visual__sub">Реєстрація займе менше хвилини</p>
         </div>
+    </div>
+    <div class="auth-form-side">
+        <div class="auth-form-box">
+            <div class="auth-form-box__eyebrow">Новий акаунт</div>
+            <div class="auth-form-box__title">Реєстрація</div>
+            <p class="auth-form-box__sub">Заповніть форму нижче</p>
 
-        <form method="POST" action="{{ url_for('register') }}">
-            <div class="form-group">
-                <label class="form-label" for="email">📧 Email</label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    class="form-input" 
-                    placeholder="your@email.com"
-                    required
-                >
-            </div>
+            <form action="{{ url_for('main.register') }}" method="POST" class="auth-form">
+                {{ form.hidden_tag() }}
 
-            <div class="form-group">
-                <label class="form-label" for="password">🔒 Пароль</label>
-                <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    class="form-input" 
-                    placeholder="••••••••"
-                    minlength="6"
-                    required
-                >
-                <div class="password-requirements">
-                    <strong>Вимоги до пароля:</strong>
-                    <ul>
-                        <li>Мінімум 6 символів</li>
-                    </ul>
+                <div class="field">
+                    {{ form.email.label }}
+                    {{ form.email(placeholder="your@email.com", autocomplete="email") }}
+                    {% for err in form.email.errors %}
+                        <span class="error">{{ err }}</span>
+                    {% endfor %}
                 </div>
+
+                <div class="field">
+                    {{ form.password.label }}
+                    {{ form.password(placeholder="Мінімум 6 символів", autocomplete="new-password") }}
+                    {% for err in form.password.errors %}
+                        <span class="error">{{ err }}</span>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="btn btn--primary">Створити акаунт</button>
+            </form>
+
+            <div class="auth-form__footer">
+                Вже маєте акаунт? <a href="{{ url_for('main.login') }}">Увійти</a>
             </div>
-
-            <button type="submit" class="submit-btn">
-                Зареєструватися
-            </button>
-        </form>
-
-        <div class="auth-footer">
-            <p>Вже маєте акаунт? <a href="{{ url_for('login') }}">Увійти</a></p>
         </div>
     </div>
 </div>
